@@ -5,6 +5,7 @@
 #include "net.minecraft.world.level.newbiome.layer.h"
 #include "System.h"
 #include "BiomeSource.h"
+#include "ClimateLayer.h"
 #include "..\Minecraft.Client\Minecraft.h"
 #include "..\Minecraft.Client\ProgressRenderer.h"
 
@@ -16,12 +17,12 @@ void BiomeSource::_init()
 
 	cache = new BiomeCache(this);
 
-	playerSpawnBiomes.push_back(Biome::forest);
-	playerSpawnBiomes.push_back(Biome::taiga);
 	// 4J-PB - Moving forward plains as a spawnable biome (mainly for the Superflat world)
 	playerSpawnBiomes.push_back(Biome::plains);
-	playerSpawnBiomes.push_back(Biome::taigaHills);
+	playerSpawnBiomes.push_back(Biome::forest);
 	playerSpawnBiomes.push_back(Biome::forestHills);
+	playerSpawnBiomes.push_back(Biome::taiga);
+	playerSpawnBiomes.push_back(Biome::taigaHills);
 	playerSpawnBiomes.push_back(Biome::jungle);
 	playerSpawnBiomes.push_back(Biome::jungleHills);
 }
@@ -30,7 +31,8 @@ void BiomeSource::_init(int64_t seed, LevelType *generator)
 {
 	_init();
 
-	LayerArray layers = Layer::getDefaultLayers(seed, generator);
+	// LayerArray layers = Layer::getDefaultLayers(seed, generator);
+	LayerArray layers = getClimateLayers(seed, generator);
 	layer = layers[0];
 	zoomedLayer = layers[1];
 
@@ -145,6 +147,16 @@ void BiomeSource::getTemperatureBlock(floatArray& temperatures, int x, int z, in
 		if (t > 1) t = 1;
 		temperatures[i] = t;
 	}
+}
+
+LayerArray BiomeSource::getClimateLayers(int64_t seed, LevelType* generator)
+{
+	LayerArray layers(2);
+	// √рубый слой (масштаб 0.04) Ч дл€ предварительных проверок, если нужен
+	layers[0] = std::make_shared<ClimateLayer>(seed, 4, 0.04);
+	// ƒетальный слой (масштаб 0.01) Ч дл€ финальной карты биомов
+	layers[1] = std::make_shared<ClimateLayer>(seed, 4, 0.01);
+	return layers;
 }
 
 BiomeArray BiomeSource::getRawBiomeBlock(int x, int z, int w, int h) const
@@ -408,6 +420,7 @@ void BiomeSource::update()
 }
 
 //#define DEBUG_SEEDS 50
+const int MAX_SEED_ATTEMPTS = 100;
 
 // 4J added - find a seed for this biomesource that matches certain criteria
 #ifdef __PSVITA__
@@ -422,7 +435,7 @@ int64_t BiomeSource::findSeed(LevelType *generator)
 	ProgressRenderer *mcprogress = Minecraft::GetInstance()->progressRenderer;
 	mcprogress->progressStage(IDS_PROGRESS_NEW_WORLD_SEED);
 
-#ifndef _CONTENT_PACKAGE
+#if 0//ndef _CONTENT_PACKAGE
 	if(app.DebugSettingsOn() && app.GetGameSettingsDebugMask(ProfileManager.GetPrimaryPad())&(1L<<eDebugSetting_EnableBiomeOverride))
 	{
 		// Do nothing
@@ -470,23 +483,25 @@ int64_t BiomeSource::findSeed(LevelType *generator)
 
 				mcprogress->progressStagePercentage( tryCount % 100 );
 #ifdef __PSVITA__
-			} while (!matchFound && *pServerRunning);
+			} while (!matchFound && *pServerRunning && tryCount < MAX_SEED_ATTEMPTS);
 #else
-			} while (!matchFound);
+			} while (!matchFound && tryCount < MAX_SEED_ATTEMPTS);
 #endif
 
 			// Clean up
 			delete pr;
 			delete indices.data;
 
-#ifdef DEBUG_SEEDS
-			app.DebugPrintf("%d: %d tries taken, seed used is %lld\n", k, tryCount, bestSeed);
+#if 1//def DEBUG_SEEDS
+			//app.DebugPrintf("%d: %d tries taken, seed used is %lld\n", k, tryCount, bestSeed);
 
-			BiomeSource *biomeSource = new BiomeSource(bestSeed);
-			BiomeArray biomes = biomeSource->getBiomeBlock(-27 * 16, -27 * 16, 54 * 16, 54 * 16);
+			int size = 64 * 16;
 
-			unsigned int *pixels = new unsigned int[54 * 16 * 54 * 16];
-			for(int i = 0; i < 54 * 16 * 54 * 16; i++ )
+			BiomeSource *biomeSource = new BiomeSource(bestSeed, generator);
+			BiomeArray biomes = biomeSource->getBiomeBlock(-27 * 16, -27 * 16, size, size);
+
+			unsigned int *pixels = new unsigned int[size * size];
+			for(int i = 0; i < size * size; i++ )
 			{
 				int id = biomes[i]->id;
 
@@ -519,13 +534,13 @@ int64_t BiomeSource::findSeed(LevelType *generator)
 				if( id & 8 ) pixels[i] |= 0x00808080;
 			}
 			D3DXIMAGE_INFO srcInfo;
-			srcInfo.Format = D3DFMT_LIN_A8R8G8B8;
-			srcInfo.ImageFileFormat = D3DXIFF_BMP;
-			srcInfo.Width = 54 * 16;
-			srcInfo.Height = 54 * 16;
+			//srcInfo.Format = D3DFMT_LIN_A8R8G8B8;
+			//srcInfo.ImageFileFormat = D3DXIFF_BMP;
+			srcInfo.Width = size;
+			srcInfo.Height = size;
 
 			char buf[256];
-			sprintf(buf,"GAME:\\BiomeTest%d.bmp",k);
+			sprintf(buf,"GAME:\\BiomeTest%d.bmp", bestSeed);
 			RenderManager.SaveTextureData(buf, &srcInfo, (int *)pixels);
 
 			delete [] pixels;
