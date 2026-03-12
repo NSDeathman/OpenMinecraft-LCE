@@ -2421,6 +2421,9 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 						// Ставим на позицию ног игрока только если клетка свободна
 						if (level->isEmptyTile(curX, curY, curZ))
 						{
+							float emission = Tile::lightEmission[heldItemId];
+							Tile::lightEmission[Tile::lightSourceBlock_Id] = emission;
+
 							level->setTileAndData(
 								curX, curY, curZ,
 								Tile::lightSourceBlock_Id, 0,
