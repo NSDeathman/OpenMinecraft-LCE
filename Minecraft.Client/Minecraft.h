@@ -51,7 +51,7 @@ private:
 	enum  OS{
 		linux, solaris, windows, macos, unknown, xbox
 	};
-
+	
 	static ResourceLocation DEFAULT_FONT_LOCATION;
 	static ResourceLocation ALT_FONT_LOCATION;
 

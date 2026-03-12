@@ -150,7 +150,7 @@ Minecraft::Minecraft(Component *mouseComponent, Canvas *parent, MinecraftApplet 
 	progressRenderer = nullptr;
 	gameRenderer = nullptr;
 	bgLoader = nullptr;
-
+	
 	ticks = 0;
 	// 4J-PB - moved into the local player
 	//missTime = 0;

@@ -235,6 +235,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccProvider>SAK</SccProvider>
     <ApplicationEnvironment>title</ApplicationEnvironment>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'" Label="Configuration">
@@ -306,7 +307,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'" Label="Configuration">
@@ -2459,6 +2460,7 @@
     <ClInclude Include="BookshelfTile.h" />
     <ClInclude Include="BossMob.h" />
     <ClInclude Include="Calendar.h" />
+    <ClInclude Include="ClimateLayer.h" />
     <ClInclude Include="ColoredTile.h" />
     <ClInclude Include="CommandBlock.h" />
     <ClInclude Include="CommandBlockEntity.h" />
@@ -2489,6 +2491,7 @@
     <ClInclude Include="HtmlString.h" />
     <ClInclude Include="LargeFireball.h" />
     <ClInclude Include="LeashItem.h" />
+    <ClInclude Include="LightSourceTile.h" />
     <ClInclude Include="MapCloningRecipe.h" />
     <ClInclude Include="MapExtendingRecipe.h" />
     <ClInclude Include="MinecartChest.h" />
@@ -3529,6 +3532,7 @@
     <ClCompile Include="BookItem.cpp" />
     <ClCompile Include="BookshelfTile.cpp" />
     <ClCompile Include="Calendar.cpp" />
+    <ClCompile Include="ClimateLayer.cpp" />
     <ClCompile Include="ColoredTile.cpp" />
     <ClCompile Include="CommandBlock.cpp" />
     <ClCompile Include="CommandBlockEntity.cpp" />
@@ -3557,6 +3561,7 @@
     <ClCompile Include="HtmlString.cpp" />
     <ClCompile Include="LargeFireball.cpp" />
     <ClCompile Include="LeashItem.cpp" />
+    <ClCompile Include="LightSourceTile.cpp" />
     <ClCompile Include="MinecartChest.cpp" />
     <ClCompile Include="MinecartContainer.cpp" />
     <ClCompile Include="MinecartFurnace.cpp" />
