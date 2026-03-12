@@ -3197,6 +3197,12 @@
     <ClInclude Include="FireworksMenu.h">
       <Filter>net\minecraft\world\inventory</Filter>
     </ClInclude>
+    <ClInclude Include="ClimateLayer.h">
+      <Filter>net\minecraft\world\level\newbiome\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSourceTile.h">
+      <Filter>net\minecraft\world\level\tile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -5625,6 +5631,12 @@
     </ClCompile>
     <ClCompile Include="EmptyMapItem.cpp">
       <Filter>net\minecraft\world\item</Filter>
+    </ClCompile>
+    <ClCompile Include="ClimateLayer.cpp">
+      <Filter>net\minecraft\world\level\newbiome\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceTile.cpp">
+      <Filter>net\minecraft\world\level\tile</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

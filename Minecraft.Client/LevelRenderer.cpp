@@ -2302,13 +2302,18 @@ void LevelRenderer::renderHitOutline(shared_ptr<Player> player, HitResult *h, in
 		float ss = 0.002f;
 		int tileId = level[iPad]->getTile(h->x, h->y, h->z);
 
-		if (tileId > 0)
+		if (tileId > 0 && Tile::tiles[tileId] != nullptr)
 		{
 			Tile::tiles[tileId]->updateShape(level[iPad], h->x, h->y, h->z);
-			double xo = player->xOld + (player->x - player->xOld) * a;
-			double yo = player->yOld + (player->y - player->yOld) * a;
-			double zo = player->zOld + (player->z - player->zOld) * a;
-			render(Tile::tiles[tileId]->getTileAABB(level[iPad], h->x, h->y, h->z)->grow(ss, ss, ss)->cloneMove(-xo, -yo, -zo));
+
+			AABB* aabb = Tile::tiles[tileId]->getTileAABB(level[iPad], h->x, h->y, h->z);
+			if (aabb != nullptr)
+			{
+				double xo = player->xOld + (player->x - player->xOld) * a;
+				double yo = player->yOld + (player->y - player->yOld) * a;
+				double zo = player->zOld + (player->z - player->zOld) * a;
+				render(aabb->grow(ss, ss, ss)->cloneMove(-xo, -yo, -zo));
+			}
 		}
 		glDepthMask(true);
 		glEnable(GL_TEXTURE_2D);

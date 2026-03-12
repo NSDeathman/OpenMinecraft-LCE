@@ -113,7 +113,7 @@ CustomLevelSource::CustomLevelSource(Level *level, int64_t seed, bool generateSt
 
 	random = new Random(seed);
 	pprandom = new Random(seed);	// 4J - added, so that we can have a separate random for doing post-processing in parallel with creation
-	perlinNoise3 = new PerlinNoise(random, 64 * (m_XZSize / 64));
+	perlinNoise3 = new PerlinNoise(random, 4);
 #endif
 }
 
