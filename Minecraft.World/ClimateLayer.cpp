@@ -4,9 +4,10 @@
 #include "Mth.h"
 #include "IntCache.h"
 
-ClimateLayer::ClimateLayer(int64_t seed, int octaves, double scale)
+ClimateLayer::ClimateLayer(int64_t seed, int octaves, double scale, shared_ptr<Layer> parent)
     : Layer(seed), scale(scale)
 {
+    this->parent = parent;
     Random random(seed);
     temperatureNoise = new PerlinNoise(&random, octaves);
     humidityNoise = new PerlinNoise(&random, octaves);
@@ -58,17 +59,22 @@ intArray ClimateLayer::getArea(int xo, int yo, int w, int h)
 {
     IntCache::releaseAll();
     intArray result = IntCache::allocate(w * h);
+    intArray parentMap = parent->getArea(xo, yo, w, h); // получаем карту суши/океана
 
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
+            int parentVal = parentMap[x + y * w];
+            if (parentVal == 0) { // океан
+                result[x + y * w] = 0;
+                continue;
+            }
+
             int worldX = xo + x;
             int worldY = yo + y;
 
-            // Получаем значения шума в диапазоне примерно [-1, 1]
             double tempNoise = temperatureNoise->getValue(worldX * scale, worldY * scale);
             double humNoise = humidityNoise->getValue(worldX * scale, worldY * scale);
 
-            // Нормализуем в [0, 1] (логистическая функция или просто clamp)
             float normTemp = Mth::clamp((float)((tempNoise + 1.0) * 0.5), 0.0f, 1.0f);
             float normHum = Mth::clamp((float)((humNoise + 1.0) * 0.5), 0.0f, 1.0f);
 
@@ -76,6 +82,5 @@ intArray ClimateLayer::getArea(int xo, int yo, int w, int h)
             result[x + y * w] = biome->id;
         }
     }
-
     return result;
 }

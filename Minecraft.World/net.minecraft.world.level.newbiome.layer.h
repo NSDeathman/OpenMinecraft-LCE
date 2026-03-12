@@ -22,6 +22,7 @@
 #include "VoronoiZoom.h"
 #include "ZoomLayer.h"
 #include "GrowMushroomIslandLayer.h" // 4J added
+#include "ClimateLayer.h"
 
 // 1.1.
 #include "RegionHillsLayer.h"

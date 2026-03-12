@@ -22,7 +22,7 @@ private:
     Biome* getBiomeForClimate(float temp, float hum) const;
 
 public:
-    ClimateLayer(int64_t seed, int octaves = 4, double scale = 0.01);
+    ClimateLayer(int64_t seed, int octaves, double scale, shared_ptr<Layer> parent);
     virtual ~ClimateLayer();
 
     virtual intArray getArea(int xo, int yo, int w, int h) override;

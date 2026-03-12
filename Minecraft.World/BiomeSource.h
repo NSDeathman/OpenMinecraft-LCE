@@ -47,8 +47,6 @@ public:
     virtual Biome *getBiome(ChunkPos *cp);
     virtual Biome *getBiome(int x, int z);
 
-	static LayerArray getClimateLayers(int64_t seed, LevelType* generator);
-
 	// 4J - changed the interface for these methods, mainly for thread safety
 	virtual float getDownfall(int x, int z) const;
     virtual floatArray getDownfallBlock(int x, int z, int w, int h) const;

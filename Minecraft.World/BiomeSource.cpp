@@ -9,7 +9,6 @@
 #include "..\Minecraft.Client\Minecraft.h"
 #include "..\Minecraft.Client\ProgressRenderer.h"
 
-// 4J - removal of separate temperature & downfall layers brought forward from 1.2.3
 void BiomeSource::_init()
 {
 	layer = nullptr;
@@ -17,7 +16,6 @@ void BiomeSource::_init()
 
 	cache = new BiomeCache(this);
 
-	// 4J-PB - Moving forward plains as a spawnable biome (mainly for the Superflat world)
 	playerSpawnBiomes.push_back(Biome::plains);
 	playerSpawnBiomes.push_back(Biome::forest);
 	playerSpawnBiomes.push_back(Biome::forestHills);
@@ -25,14 +23,23 @@ void BiomeSource::_init()
 	playerSpawnBiomes.push_back(Biome::taigaHills);
 	playerSpawnBiomes.push_back(Biome::jungle);
 	playerSpawnBiomes.push_back(Biome::jungleHills);
+	playerSpawnBiomes.push_back(Biome::desert);
+	playerSpawnBiomes.push_back(Biome::extremeHills);
+	playerSpawnBiomes.push_back(Biome::swampland);
+	playerSpawnBiomes.push_back(Biome::iceFlats);
+	playerSpawnBiomes.push_back(Biome::iceMountains);
+	playerSpawnBiomes.push_back(Biome::mushroomIsland);
+	playerSpawnBiomes.push_back(Biome::mushroomIslandShore);
+	playerSpawnBiomes.push_back(Biome::beaches);
+	playerSpawnBiomes.push_back(Biome::desertHills);
+	playerSpawnBiomes.push_back(Biome::smallerExtremeHills);
 }
 
 void BiomeSource::_init(int64_t seed, LevelType *generator)
 {
 	_init();
 
-	// LayerArray layers = Layer::getDefaultLayers(seed, generator);
-	LayerArray layers = getClimateLayers(seed, generator);
+	LayerArray layers = Layer::getDefaultLayers(seed, generator);
 	layer = layers[0];
 	zoomedLayer = layers[1];
 
@@ -147,16 +154,6 @@ void BiomeSource::getTemperatureBlock(floatArray& temperatures, int x, int z, in
 		if (t > 1) t = 1;
 		temperatures[i] = t;
 	}
-}
-
-LayerArray BiomeSource::getClimateLayers(int64_t seed, LevelType* generator)
-{
-	LayerArray layers(2);
-	// √рубый слой (масштаб 0.04) Ч дл€ предварительных проверок, если нужен
-	layers[0] = std::make_shared<ClimateLayer>(seed, 4, 0.04);
-	// ƒетальный слой (масштаб 0.01) Ч дл€ финальной карты биомов
-	layers[1] = std::make_shared<ClimateLayer>(seed, 4, 0.01);
-	return layers;
 }
 
 BiomeArray BiomeSource::getRawBiomeBlock(int x, int z, int w, int h) const
@@ -453,7 +450,7 @@ int64_t BiomeSource::findSeed(LevelType *generator)
 			// Raw biome data has one result per 4x4 group of tiles.
 			// Removing a border of 8 from each side since we'll be doing special things at the edge to turn our world into an island, and so don't want to count things
 			// in the edge region in case they later get removed
-			static const int biomeWidth = ( 54 * 4 ) - 16;			// Should be even so we can offset evenly
+			static const int biomeWidth = ( 64 * 2 ) - 16;			// Should be even so we can offset evenly
 			static const int biomeOffset = -( biomeWidth / 2 );
 
 			// Storage for our biome indices
@@ -468,7 +465,7 @@ int64_t BiomeSource::findSeed(LevelType *generator)
 			// Just keeping trying to generate seeds until we find one that matches our criteria
 			do
 			{
-				int64_t seed = pr->nextLong();
+				int64_t seed = System::currentTimeMillis() ^ (tryCount << 32) ^ (int64_t)pr->nextLong();
 				BiomeSource *biomeSource = new BiomeSource(seed,generator);
 
 				biomeSource->getRawBiomeIndices(indices, biomeOffset, biomeOffset, biomeWidth, biomeWidth);
@@ -575,82 +572,21 @@ void BiomeSource::getFracs(intArray indices, float *fracs)
 
 
 // 4J added - determine if this particular set of fractional amounts of biome types matches are requirements
-bool BiomeSource::getIsMatch(float *frac)
+bool BiomeSource::getIsMatch(float* frac)
 {
-	// A true for a particular biome type here marks it as one that *has* to be present
-	static const bool critical[Biome::BIOME_COUNT] = {
-		true,	// ocean
-		true,	// plains
-		true,	// desert
-		false,	// extreme hills
-		true,	// forest
-		true,	// taiga
-		true,	// swamps
-		false,	// river
-		false,	// hell
-		false,	// end biome
-		false,	// frozen ocean
-		false,	// frozen river
-		false,	// ice flats
-		false,	// ice mountains
-		true,	// mushroom island / shore
-		false,  // mushroom shore (combined with above)
-		false,	// beach
-		false,	// desert hills (combined with desert)
-		false,	// forest hills (combined with forest)
-		false,	// taiga hills (combined with taga)
-		false,	// small extreme hills
-		true,	// jungle
-		false,	// jungle hills (combined with jungle)
-	};
+	// ќкеан может занимать до 50%
+	if (frac[0] > 0.5f) return false;
 
-
-	// Don't want more than 15% ocean
-	if( frac[0] > 0.15f )
-	{
-		return false;
-	}
-
-	// Consider mushroom shore & islands as the same by finding max
-	frac[14] = ( ( frac[15] > frac[14] ) ? frac[15] : frac[14] );
-
-	// Merge desert and desert hills
-	frac[2] = ( ( frac[17] > frac[2] ) ? frac[17] : frac[2] );
-
-	// Merge forest and forest hills
-	frac[4] = ( ( frac[18] > frac[4] ) ? frac[18] : frac[4] );
-
-	// Merge taiga and taiga hills
-	frac[5] = ( ( frac[19] > frac[5] ) ? frac[19] : frac[5] );
-
-	// Merge jungle and jungle hills
-	frac[21] =  ( ( frac[22] > frac[21] ) ? frac[22] : frac[21] );
-
-	// Loop through all biome types, and:
-	// (1) count them
-	// (2) give up if one of the critical ones is missing
+	// ќсновные биомы, которые должны присутствовать
+	//static const int required[] = { 1, 2, 4, 5 }; // plains, desert, forest, taiga
+	//for (int i : required) {
+	//	if (frac[i] < 0.01f) return false;
+	//}
 
 	int typeCount = 0;
-	for( int i = 0; i < Biome::BIOME_COUNT; i++ )
-	{
-		// We want to skip some where we have merged with another type
-		if(i == 15 || i == 17 || i == 18 || i == 19 || i == 22) continue;
-
-		// Consider 0.1% as being "present" - this equates an area of about 3 chunks
-		if( frac[i] > 0.001f )
-		{
-			typeCount++;
-		}
-		else
-		{
-			// If a critical biome is missing, just give up
-			if( critical[i] )
-			{
-				return false;
-			}
-		}
+	for (int i = 0; i < Biome::BIOME_COUNT; i++) {
+		if (i == 15 || i == 17 || i == 18 || i == 19 || i == 22) continue;
+		if (frac[i] > 0.001f) typeCount++;
 	}
-
-	// Consider as suitable if we've got all the critical ones, and in total 9 or more - currently there's 8 critical so this just forces at least 1 more others
-	return ( typeCount >= 9 );
+	return typeCount >= 6;
 }
