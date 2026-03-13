@@ -31,7 +31,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 	islandLayer = std::make_shared<AddIslandLayer>(3, islandLayer);
 	islandLayer = std::make_shared<ZoomLayer>(2003, islandLayer);
 	islandLayer = std::make_shared<AddIslandLayer>(4, islandLayer);
-//	islandLayer = shared_ptr<Layer>(new AddMushroomIslandLayer(5, islandLayer));		// 4J - old position of mushroom island layer
+	islandLayer = shared_ptr<Layer>(new AddMushroomIslandLayer(5, islandLayer));		// 4J - old position of mushroom island layer
 
 	int zoomLevel = 4;
 	if (levelType == LevelType::lvl_largeBiomes)
@@ -39,7 +39,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 		zoomLevel = 6;
 	}
 
-	shared_ptr<Layer> riverLayer = islandLayer;
+	shared_ptr<Layer> riverLayer = std::make_shared<RiverInitLayer>(100, islandLayer);
 	riverLayer = ZoomLayer::zoom(1000, riverLayer, 0);
 	riverLayer = std::make_shared<RiverInitLayer>(100, riverLayer);
 	riverLayer = ZoomLayer::zoom(1000, riverLayer, zoomLevel + 2);
@@ -64,7 +64,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 			// 4J - moved mushroom islands to here. This skips 3 zooms that the old location of the add was, making them about 1/8 of the original size. Adding
 			// them at this scale actually lets us place them near enough other land, if we add them at the same scale as java then they have to be too far out to see for
 			// the scale of our maps
-			biomeLayer = std::make_shared<AddMushroomIslandLayer>(5, biomeLayer);
+			biomeLayer = std::make_shared<AddMushroomIslandLayer>(10, biomeLayer);
 		}
 
 		if (i == 1 )
@@ -72,7 +72,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 			// 4J - now expand mushroom islands up again. This does a simple region grow to add a new mushroom island element when any of the neighbours are also mushroom islands.
 			// This helps make the islands into nice compact shapes of the type that are actually likely to be able to make an island out of the sea in a small space. Also
 			// helps the shore layer from doing too much damage in shrinking the islands we are making
-			biomeLayer = std::make_shared<GrowMushroomIslandLayer>(5, biomeLayer);
+			biomeLayer = std::make_shared<GrowMushroomIslandLayer>(10, biomeLayer);
 			// Note - this reduces the size of mushroom islands by turning their edges into shores. We are doing this at i == 1 rather than i == 0 as the original does
 			biomeLayer = std::make_shared<ShoreLayer>(1000, biomeLayer);
 
@@ -95,7 +95,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 
 	shared_ptr<Layer> debugLayer = biomeLayer;
 
-	shared_ptr<Layer>zoomedLayer = std::make_shared<VoronoiZoom>(10, biomeLayer);
+	shared_ptr<Layer>zoomedLayer = std::make_shared<VoronoiZoom>(20, biomeLayer);
 
 	biomeLayer->init(seed);
 	zoomedLayer->init(seed);
@@ -113,11 +113,11 @@ Layer::Layer(int64_t seedMixup)
 
 	this->seedMixup = seedMixup;
 	this->seedMixup *= this->seedMixup * 6364136223846793005l + 1442695040888963407l;
-	this->seedMixup += seedMixup;
+	this->seedMixup += seedMixup + 1;
 	this->seedMixup *= this->seedMixup * 6364136223846793005l + 1442695040888963407l;
-	this->seedMixup += seedMixup;
+	this->seedMixup += seedMixup + 2;
 	this->seedMixup *= this->seedMixup * 6364136223846793005l + 1442695040888963407l;
-	this->seedMixup += seedMixup;
+	this->seedMixup += seedMixup + 3;
 }
 
 void Layer::init(int64_t seed)
@@ -125,11 +125,11 @@ void Layer::init(int64_t seed)
 	this->seed = seed;
 	if (parent != nullptr) parent->init(seed);
 	this->seed *= this->seed * 6364136223846793005l + 1442695040888963407l;
-	this->seed += seedMixup;
+	this->seed += seedMixup + 1;
 	this->seed *= this->seed * 6364136223846793005l + 1442695040888963407l;
-	this->seed += seedMixup;
+	this->seed += seedMixup + 2;
 	this->seed *= this->seed * 6364136223846793005l + 1442695040888963407l;
-	this->seed += seedMixup;
+	this->seed += seedMixup + 3;
 }
 
 void Layer::initRandom(int64_t x, int64_t y)

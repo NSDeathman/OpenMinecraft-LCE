@@ -46,8 +46,8 @@ SOFTWARE.
 #define THUMBNAIL_DOWNSAMPLE_QUALITY_3 3 // 128x128
 #define THUMBNAIL_DOWNSAMPLE_TARGET    4 // 64x64
 
-#define NUM_COMMAND_HANDLES 0x800000
-#define MAX_COMMAND_BUFFERS 16000
+#define NUM_COMMAND_HANDLES 0x10000
+#define MAX_COMMAND_BUFFERS 4096
 
 class Renderer
 {
@@ -169,6 +169,7 @@ private:
     ID3D11SamplerState *GetManagedSamplerState();
     void DeleteInternalBuffer(int index);
     Renderer::Context &getContext();
+    void GrowCommandBufferArrays();
 public:
 
     enum eTextureSamplerFlags
@@ -471,12 +472,12 @@ public:
     BYTE reservedRendererByte1;
     BYTE paddingAfterRendererByte1[3];
     DWORD reservedRendererDword1;
-    int16_t *m_vertexIdxToBufferIdx;
-    CommandBuffer **m_commandBuffers;
-    DirectX::XMMATRIX *m_commandMatrices;
-    int *m_bufferIdxToVertexIdx;
-    uint8_t *m_commandPrimitiveTypes;
-    uint8_t *m_commandVertexTypes;
+    std::vector<int>              m_vertexIdxToBufferIdx; // int16_t -> int, иначе переполнение при >32767 буферах
+    std::vector<CommandBuffer*>   m_commandBuffers;
+    std::vector<DirectX::XMMATRIX> m_commandMatrices;
+    std::vector<int>              m_bufferIdxToVertexIdx;
+    std::vector<uint8_t>          m_commandPrimitiveTypes;
+    std::vector<uint8_t>          m_commandVertexTypes;
     DWORD m_currentCommandBuffer;
     DWORD m_numBuffersToDeallocate;
     std::unordered_map<int, ID3D11BlendState *> managedBlendStates;

@@ -680,18 +680,15 @@ void Renderer::Initialise(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)
 
     PROFILER_INIT();
 
-    m_vertexIdxToBufferIdx = new int16_t[NUM_COMMAND_HANDLES];
-    m_commandBuffers = new CommandBuffer *[MAX_COMMAND_BUFFERS];
-    m_commandMatrices = new DirectX::XMMATRIX[MAX_COMMAND_BUFFERS];
-    m_bufferIdxToVertexIdx = new int[MAX_COMMAND_BUFFERS];
-    m_commandPrimitiveTypes = new uint8_t[MAX_COMMAND_BUFFERS];
-    m_commandVertexTypes = new uint8_t[MAX_COMMAND_BUFFERS];
+    static const int kInitialHandles = 0x800000;
+    static const int kInitialBuffers = 4096;
 
-    std::memset(m_vertexIdxToBufferIdx, 0xFF, NUM_COMMAND_HANDLES * sizeof(int16_t));
-    std::memset(m_commandBuffers, 0, MAX_COMMAND_BUFFERS * sizeof(CommandBuffer *));
-    std::memset(m_bufferIdxToVertexIdx, 0, MAX_COMMAND_BUFFERS * sizeof(int));
-    std::memset(m_commandPrimitiveTypes, 0, MAX_COMMAND_BUFFERS * sizeof(uint8_t));
-    std::memset(m_commandVertexTypes, 0, MAX_COMMAND_BUFFERS * sizeof(uint8_t));
+    m_vertexIdxToBufferIdx.assign(kInitialHandles, -1);
+    m_commandBuffers.assign(kInitialBuffers, nullptr);
+    m_commandMatrices.resize(kInitialBuffers);
+    m_bufferIdxToVertexIdx.assign(kInitialBuffers, 0);
+    m_commandPrimitiveTypes.assign(kInitialBuffers, 0);
+    m_commandVertexTypes.assign(kInitialBuffers, 0);
 
     m_numBuffersToDeallocate = 0;
     m_bShouldScreenGrabNextFrame = false;
@@ -1047,3 +1044,34 @@ Renderer::Context &Renderer::getContext()
     return *reinterpret_cast<Renderer::Context*>(TlsGetValue(Renderer::tlsIdx));
 }
 
+void Renderer::GrowCommandBufferArrays()
+{
+    const size_t oldSize = m_commandBuffers.size();
+    const size_t newSize = oldSize * 2;
+
+    m_commandBuffers.resize(newSize, nullptr);
+    m_commandMatrices.resize(newSize);
+    m_bufferIdxToVertexIdx.resize(newSize, 0);
+    m_commandPrimitiveTypes.resize(newSize, 0);
+    m_commandVertexTypes.resize(newSize, 0);
+
+    if (m_numBuffersToDeallocate > 0)
+    {
+        for (DWORD i = 0; i < m_numBuffersToDeallocate; ++i)
+        {
+            const int oldIdx = static_cast<int>(oldSize) - static_cast<int>(m_numBuffersToDeallocate) + static_cast<int>(i);
+            const int newIdx = static_cast<int>(newSize) - static_cast<int>(m_numBuffersToDeallocate) + static_cast<int>(i);
+
+            m_commandBuffers[newIdx] = m_commandBuffers[oldIdx];
+            m_commandMatrices[newIdx] = m_commandMatrices[oldIdx];
+            m_bufferIdxToVertexIdx[newIdx] = m_bufferIdxToVertexIdx[oldIdx];
+            m_commandPrimitiveTypes[newIdx] = m_commandPrimitiveTypes[oldIdx];
+            m_commandVertexTypes[newIdx] = m_commandVertexTypes[oldIdx];
+
+            m_commandBuffers[oldIdx] = nullptr;
+            m_bufferIdxToVertexIdx[oldIdx] = 0;
+            m_commandPrimitiveTypes[oldIdx] = 0;
+            m_commandVertexTypes[oldIdx] = 0;
+        }
+    }
+}

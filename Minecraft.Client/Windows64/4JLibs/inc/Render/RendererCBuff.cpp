@@ -206,6 +206,9 @@ bool Renderer::CBuffCall(int index, bool full)
     return result;
 }
 
+static constexpr int CBUFF_SLOT_FREE = -1; // слот свободен, CBuffCreate может занять
+static constexpr int CBUFF_SLOT_RESERVED = -2; // слот зарезервирован, но буфер не записан
+
 void Renderer::CBuffClear(int index)
 {
     EnterCriticalSection(&m_commandBufferCS);
@@ -214,7 +217,7 @@ void Renderer::CBuffClear(int index)
     if (internalIndex >= 0)
     {
         DeleteInternalBuffer(internalIndex);
-        m_vertexIdxToBufferIdx[index] = static_cast<std::int16_t>(-2);
+        m_vertexIdxToBufferIdx[index] = CBUFF_SLOT_RESERVED; // -2, не -1
     }
 
     LeaveCriticalSection(&m_commandBufferCS);
@@ -224,28 +227,33 @@ int Renderer::CBuffCreate(int count)
 {
     EnterCriticalSection(&m_commandBufferCS);
 
+    // Если не хватает handle-слотов — расширяем
+    if (reservedRendererDword1 + count >= static_cast<int>(m_vertexIdxToBufferIdx.size()))
+    {
+        const size_t newSize = (m_vertexIdxToBufferIdx.size() + count) * 2;
+        m_vertexIdxToBufferIdx.resize(newSize, -1);
+    }
+
     int first = reservedRendererDword1;
-    if (first < NUM_COMMAND_HANDLES)
+    const int limit = static_cast<int>(m_vertexIdxToBufferIdx.size());
+
+    if (first < limit)
     {
         int probe = first;
         int end = first + count;
         while (true)
         {
-            assert(first < NUM_COMMAND_HANDLES);
+            assert(first < limit);
 
             int cursor = probe;
-            while (cursor < end && cursor < NUM_COMMAND_HANDLES && m_vertexIdxToBufferIdx[cursor] == static_cast<std::int16_t>(-1))
-            {
+            while (cursor < end && cursor < limit && m_vertexIdxToBufferIdx[cursor] == CBUFF_SLOT_FREE)
                 ++cursor;
-            }
 
             if (cursor >= end)
                 break;
 
-            ++first;
-            ++probe;
-            ++end;
-            if (first >= NUM_COMMAND_HANDLES || end > NUM_COMMAND_HANDLES)
+            ++first; ++probe; ++end;
+            if (first >= limit || end > limit)
             {
                 first = -1;
                 break;
@@ -256,7 +264,7 @@ int Renderer::CBuffCreate(int count)
         {
             const int allocationEnd = first + count;
             for (int i = first; i < allocationEnd; ++i)
-                m_vertexIdxToBufferIdx[i] = static_cast<std::int16_t>(-2);
+                m_vertexIdxToBufferIdx[i] = -2;
 
             if (reservedRendererByte1)
                 reservedRendererDword1 = allocationEnd;
@@ -287,8 +295,8 @@ void Renderer::CBuffDeferredModeEnd()
         if (existingIndex >= 0)
             DeleteInternalBuffer(existingIndex);
 
-        if (static_cast<int>(m_currentCommandBuffer + m_numBuffersToDeallocate + 10) > MAX_COMMAND_BUFFERS)
-            DebugBreak();
+        if (static_cast<int>(m_currentCommandBuffer + m_numBuffersToDeallocate + 10) > static_cast<int>(m_commandBuffers.size()))
+            GrowCommandBufferArrays();
 
         const int internalSlot = m_currentCommandBuffer;
         ++m_currentCommandBuffer;
@@ -321,7 +329,7 @@ void Renderer::CBuffDelete(int first, int count)
         if (internalIndex >= 0)
             DeleteInternalBuffer(internalIndex);
 
-        m_vertexIdxToBufferIdx[i] = static_cast<std::int16_t>(-1);
+        m_vertexIdxToBufferIdx[i] = CBUFF_SLOT_FREE; // -1, слот полностью освобождён
     }
 
     LeaveCriticalSection(&m_commandBufferCS);
@@ -352,8 +360,8 @@ void Renderer::CBuffEnd()
         if (existingIndex >= 0)
             DeleteInternalBuffer(existingIndex);
 
-        if (static_cast<int>(m_currentCommandBuffer + m_numBuffersToDeallocate + 10) > MAX_COMMAND_BUFFERS)
-            DebugBreak();
+        if (static_cast<int>(m_currentCommandBuffer + m_numBuffersToDeallocate + 10) > static_cast<int>(m_commandBuffers.size()))
+            GrowCommandBufferArrays();
 
         const int internalSlot = m_currentCommandBuffer;
         ++m_currentCommandBuffer;
@@ -410,27 +418,22 @@ void Renderer::CBuffTick()
 {
     EnterCriticalSection(&m_commandBufferCS);
 
-    int completedDeletes = 0;
     if (m_numBuffersToDeallocate > 0)
     {
-        int deleteIdx = MAX_COMMAND_BUFFERS - 1;
-        do
-        {
-            Renderer::CommandBuffer *buffer = m_commandBuffers[deleteIdx];
-            if (buffer)
-                delete buffer;
-            m_commandBuffers[deleteIdx] = NULL;
+        // Удаляем ровно один буфер за тик — чтобы не спайкать кадр
+        const int totalSlots = static_cast<int>(m_commandBuffers.size());
+        const int deleteIdx = totalSlots - static_cast<int>(m_numBuffersToDeallocate);
 
-            if (--m_numBuffersToDeallocate == 0)
-            {
-                ++completedDeletes;
-                --deleteIdx;
-            }
-            else
-            {
-                m_commandBuffers[deleteIdx] = m_commandBuffers[(MAX_COMMAND_BUFFERS - 1) - static_cast<int>(m_numBuffersToDeallocate)];
-            }
-        } while (completedDeletes < static_cast<int>(m_numBuffersToDeallocate));
+        CommandBuffer* buf = m_commandBuffers[deleteIdx];
+        if (buf)
+            delete buf;
+
+        m_commandBuffers[deleteIdx] = nullptr;
+        m_bufferIdxToVertexIdx[deleteIdx] = 0;
+        m_commandPrimitiveTypes[deleteIdx] = 0;
+        m_commandVertexTypes[deleteIdx] = 0;
+
+        --m_numBuffersToDeallocate;
     }
 
     LeaveCriticalSection(&m_commandBufferCS);
@@ -438,29 +441,49 @@ void Renderer::CBuffTick()
 
 void Renderer::DeleteInternalBuffer(int index)
 {
-    EnterCriticalSection(&m_commandBufferCS);
+    // Уже под m_commandBufferCS
 
     ++m_numBuffersToDeallocate;
-    const int index_delete = MAX_COMMAND_BUFFERS - static_cast<int>(m_numBuffersToDeallocate);
+    const int totalSlots = static_cast<int>(m_commandBuffers.size());
+    const int index_delete = totalSlots - static_cast<int>(m_numBuffersToDeallocate);
 
+    // Перемещаем удаляемый буфер в зону ожидания
     m_commandBuffers[index_delete] = m_commandBuffers[index];
     m_commandMatrices[index_delete] = m_commandMatrices[index];
+    m_bufferIdxToVertexIdx[index_delete] = m_bufferIdxToVertexIdx[index];
+    m_commandPrimitiveTypes[index_delete] = m_commandPrimitiveTypes[index];
+    m_commandVertexTypes[index_delete] = m_commandVertexTypes[index];
 
     if (m_currentCommandBuffer-- != 1)
     {
-        const int mappedFrom = m_currentCommandBuffer;
+        const int mappedFrom = m_currentCommandBuffer; // после декремента
 
+        // Заполняем дырку последним активным буфером
         m_commandBuffers[index] = m_commandBuffers[mappedFrom];
         m_commandMatrices[index] = m_commandMatrices[mappedFrom];
         m_commandVertexTypes[index] = m_commandVertexTypes[mappedFrom];
         m_commandPrimitiveTypes[index] = m_commandPrimitiveTypes[mappedFrom];
+        m_bufferIdxToVertexIdx[index] = m_bufferIdxToVertexIdx[mappedFrom];
 
-        const int commandIndex = m_bufferIdxToVertexIdx[mappedFrom];
-        m_vertexIdxToBufferIdx[commandIndex] = static_cast<std::int16_t>(index);
+        // ВАЖНО: обнуляем старую позицию после свапа
+        // Без этого GrowCommandBufferArrays скопирует стейл-указатель в новый хвост
+        m_commandBuffers[mappedFrom] = nullptr;
+        m_bufferIdxToVertexIdx[mappedFrom] = 0;
+        m_commandPrimitiveTypes[mappedFrom] = 0;
+        m_commandVertexTypes[mappedFrom] = 0;
+
+        const int commandIndex = m_bufferIdxToVertexIdx[index];
+        m_vertexIdxToBufferIdx[commandIndex] = index;
         m_bufferIdxToVertexIdx[index] = commandIndex;
     }
-
-    LeaveCriticalSection(&m_commandBufferCS);
+    else
+    {
+        // Последний активный буфер был удалён — обнуляем слот
+        m_commandBuffers[index] = nullptr;
+        m_bufferIdxToVertexIdx[index] = 0;
+        m_commandPrimitiveTypes[index] = 0;
+        m_commandVertexTypes[index] = 0;
+    }
 }
 
 void Renderer::CommandBuffer::EndRecording(ID3D11Device *device)
