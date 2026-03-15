@@ -468,7 +468,7 @@ void LevelGenerationOptions::loadBaseSaveData()
 
 		if (!dlcFile->getGrfPath().empty())
 		{
-			File grf(L"Windows64Media\\DLC\\" + packName + L"\\Data\\" + dlcFile->getGrfPath());
+			File grf(L"Minecraft.Assets\\Win64\\DLC\\" + packName + L"\\Data\\" + dlcFile->getGrfPath());
 
 			if (grf.exists())
 			{
@@ -496,7 +496,7 @@ void LevelGenerationOptions::loadBaseSaveData()
 
 	if (requiresBaseSave() && !getBaseSavePath().empty())
 	{
-		File save(L"Windows64Media\\DLC\\" + packName + L"\\Data\\" + baseSave);
+		File save(L"Minecraft.Assets\\Win64\\DLC\\" + packName + L"\\Data\\" + baseSave);
 
 		if (save.exists())
 		{

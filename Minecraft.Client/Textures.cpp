@@ -1409,12 +1409,12 @@ BufferedImage *Textures::readImage(TEXTURE_NAME texId, const wstring& name)	// 4
 
 			if(isTu)
 			{
-				drive= wstr + L"\\Common\\res\\TitleUpdate\\";
+				drive= wstr + L"\\Minecraft.Assets\\Common\\res\\TitleUpdate\\";
 
 			}
 			else
 			{
-				drive= wstr + L"\\Common\\";
+				drive= wstr + L"\\Minecraft.Assets\\Common\\";
 			}
 		}
 		else

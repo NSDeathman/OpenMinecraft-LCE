@@ -921,7 +921,7 @@ void Renderer::Present()
         GetCurrentDirectoryA(sizeof(curDir), curDir);
 
         char ssPath[512];
-        sprintf(ssPath, "%s/Windows64/GameHDD/", curDir);
+        sprintf(ssPath, "%s/Saves/", curDir);
 
         _SYSTEMTIME UTCSysTime;
         GetSystemTime(&UTCSysTime);

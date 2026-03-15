@@ -359,17 +359,17 @@ UITTFFont *UIController::createFont(EFont fontLanguage)
 	switch(fontLanguage)
 	{
 #if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__)
-	case eFont_Japanese:		return new UITTFFont("Mojangles_TTF_jaJP", "Common/Media/font/JPN/DF-DotDotGothic16.ttf", 0x203B); // JPN
+	case eFont_Japanese:		return new UITTFFont("Mojangles_TTF_jaJP", "Minecraft.Assets/Common/Media/font/JPN/DF-DotDotGothic16.ttf", 0x203B); // JPN
 	// case eFont_SimpChinese:	Simplified Chinese is unsupported.
-	case eFont_TradChinese:		return new UITTFFont("Mojangles_TTF_cnTD", "Common/Media/font/CHT/DFTT_R5.TTC", 0x203B); // CHT
-	case eFont_Korean:			return new UITTFFont("Mojangles_TTF_koKR", "Common/Media/font/KOR/candadite2.ttf", 0x203B); // KOR
+	case eFont_TradChinese:		return new UITTFFont("Mojangles_TTF_cnTD", "Minecraft.Assets/Common/Media/font/CHT/DFTT_R5.TTC", 0x203B); // CHT
+	case eFont_Korean:			return new UITTFFont("Mojangles_TTF_koKR", "Minecraft.Assets/Common/Media/font/KOR/candadite2.ttf", 0x203B); // KOR
 #else
-	case eFont_Japanese:		return new UITTFFont("Mojangles_TTF_jaJP", "Common/Media/font/JPN/DFGMaruGothic-Md.ttf", 0x2022); // JPN
+	case eFont_Japanese:		return new UITTFFont("Mojangles_TTF_jaJP", "Minecraft.Assets/Common/Media/font/JPN/DFGMaruGothic-Md.ttf", 0x2022); // JPN
 #ifdef _DURANGO
-	case eFont_SimpChinese:		return new UITTFFont("Mojangled_TTF_cnCN", "Common/Media/font/CHS/MSYH.ttf", 0x2022); // CHS
+	case eFont_SimpChinese:		return new UITTFFont("Mojangled_TTF_cnCN", "Minecraft.Assets/Common/Media/font/CHS/MSYH.ttf", 0x2022); // CHS
 #endif
-	case eFont_TradChinese:		return new UITTFFont("Mojangles_TTF_cnTD", "Common/Media/font/CHT/DFHeiMedium-B5.ttf", 0x2022); // CHT
-	case eFont_Korean:			return new UITTFFont("Mojangles_TTF_koKR", "Common/Media/font/KOR/BOKMSD.ttf", 0x2022); // KOR
+	case eFont_TradChinese:		return new UITTFFont("Mojangles_TTF_cnTD", "Minecraft.Assets/Common/Media/font/CHT/DFHeiMedium-B5.ttf", 0x2022); // CHT
+	case eFont_Korean:			return new UITTFFont("Mojangles_TTF_koKR", "Minecraft.Assets/Common/Media/font/KOR/BOKMSD.ttf", 0x2022); // KOR
 #endif
 	// 4J-JEV, Cyrillic characters have been added to this font now, (4/July/14)
 	// XC_LANGUAGE_RUSSIAN and XC_LANGUAGE_GREEK:

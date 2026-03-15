@@ -64,8 +64,8 @@ void SoundEngine::playMusicTick() {};
 #else
 
 #ifdef _WINDOWS64
-char SoundEngine::m_szSoundPath[]={"Windows64Media\\Sound\\"};
-char SoundEngine::m_szMusicPath[]={"music\\"};
+char SoundEngine::m_szSoundPath[]={"Minecraft.Assets\\Win64\\Sound\\"};
+char SoundEngine::m_szMusicPath[]={"Minecraft.Assets\\Win64\\Sound\\music\\"};
 char SoundEngine::m_szRedistName[]={"redist64"};
 #elif defined _DURANGO
 char SoundEngine::m_szSoundPath[]={"Sound\\"};
@@ -477,7 +477,7 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
         iSound, SoundName, szSoundName, x, y, z, volume, pitch);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/%s", (char*)szSoundName);
+    sprintf_s(basePath, "Minecraft.Assets/Win64/Sound/%s", (char*)szSoundName);
 
     char finalPath[256];
     sprintf_s(finalPath, "%s.wav", basePath);
@@ -608,7 +608,7 @@ void SoundEngine::playUI(int iSound, float volume, float pitch)
     strcat((char*)szSoundName, SoundName);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
+    sprintf_s(basePath, "Minecraft.Assets/Win64/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
 
     char finalPath[256];
     sprintf_s(finalPath, "%s.wav", basePath);
