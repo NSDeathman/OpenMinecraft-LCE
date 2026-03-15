@@ -10054,7 +10054,7 @@ enum ETitleUpdateTexturePacks
 };
 
 #ifdef _WINDOWS64
-wstring titleUpdateTexturePackRoot = L"Windows64\\DLC\\";
+wstring titleUpdateTexturePackRoot = L"Assets\\Win64\\DLC\\";
 #elif defined(__ORBIS__)
 wstring titleUpdateTexturePackRoot = L"/app0/orbis/CU/DLC/";
 #elif defined(__PSVITA__)

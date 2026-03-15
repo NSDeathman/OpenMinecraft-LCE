@@ -6,11 +6,7 @@ param(
 Write-Host "Post-build script started. Output Directory: $OutDir, Project Directory: $ProjectDir"
 
 $directories = @(
-    "Common\Media",
-    "Common\res",
-    "Common\Trial",
-    "Common\Tutorial",
-    "Windows64Media"
+    "Windows64\GameHDD",
 )
 
 foreach ($dir in $directories) {

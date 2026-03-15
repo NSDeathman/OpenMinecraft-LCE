@@ -232,7 +232,7 @@ bool	CGameNetworkManager::StartNetworkGame(Minecraft *minecraft, LPVOID lpParame
 #ifdef _WINDOWS64
 						wstring fileRoot = L"Assets\\Win64\\Tutorial\\" + param->levelGen->getBaseSavePath();
 						File root(fileRoot);
-						if(!root.exists()) fileRoot = L"Windows64\\Tutorial\\" + param->levelGen->getBaseSavePath();
+						if(!root.exists()) fileRoot = L"Assets\\Win64\\Tutorial\\" + param->levelGen->getBaseSavePath();
 #elif defined(__ORBIS__)
 						wstring fileRoot = L"/app0/orbis/Tutorial/" + param->levelGen->getBaseSavePath();
 #elif defined(__PSVITA__)

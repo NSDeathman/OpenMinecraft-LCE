@@ -774,7 +774,7 @@ void UIScene_LoadOrJoinMenu::tick()
                         wchar_t wFilename[MAX_SAVEFILENAME_LENGTH];
                         ZeroMemory(wFilename, sizeof(wFilename));
                         mbstowcs(wFilename, m_pSaveDetails->SaveInfoA[origIdx].UTF8SaveFilename, MAX_SAVEFILENAME_LENGTH - 1);
-                        wstring filePath = wstring(L"Saves\\") + wstring(wFilename) + wstring(L"\\saveData.ms");
+                        wstring filePath = wstring(L"Windows64\\GameHDD\\") + wstring(wFilename) + wstring(L"\\saveData.ms");
                         wstring levelName = ReadLevelNameFromSaveFile(filePath);
                         if (!levelName.empty())
                         {
@@ -1016,9 +1016,9 @@ void UIScene_LoadOrJoinMenu::GetSaveInfo()
 
         uiSaveC = 0;
 #ifdef _XBOX
-        File savesDir(L"GAME:\\Saves");
+        File savesDir(L"GAME:\\GameHDD\\");
 #else
-        File savesDir(L"Saves");
+        File savesDir(L"Windows64\\GameHDD\\");
 #endif
         if( savesDir.exists() )
         {
@@ -1432,7 +1432,7 @@ int UIScene_LoadOrJoinMenu::KeyboardCompleteWorldNameCallback(LPVOID lpParam,boo
                 // Build the sidecar path: Windows64\GameHDD\{folder}\worldname.txt
                 wchar_t wFilename[MAX_SAVEFILENAME_LENGTH] = {};
                 mbstowcs(wFilename, pClass->m_saveDetails[listPos].UTF8SaveFilename, MAX_SAVEFILENAME_LENGTH - 1);
-                wstring sidecarPath = wstring(L"Saves\\") + wstring(wFilename) + wstring(L"\\worldname.txt");
+                wstring sidecarPath = wstring(L"Windows64\\GameHDD\\") + wstring(wFilename) + wstring(L"\\worldname.txt");
 
                 FILE *fw = nullptr;
                 if (_wfopen_s(&fw, sidecarPath.c_str(), L"w") == 0 && fw)
@@ -2424,7 +2424,7 @@ int UIScene_LoadOrJoinMenu::DeleteSaveDialogReturned(void *pParam,int iPad,C4JSt
                     wchar_t wFilename[MAX_SAVEFILENAME_LENGTH] = {};
                     mbstowcs_s(nullptr, wFilename, MAX_SAVEFILENAME_LENGTH, pClass->m_saveDetails[displayIdx].UTF8SaveFilename, MAX_SAVEFILENAME_LENGTH - 1);
                     wchar_t wFolderPath[MAX_PATH] = {};
-                    swprintf_s(wFolderPath, MAX_PATH, L"Saves\\%s", wFilename);
+                    swprintf_s(wFolderPath, MAX_PATH, L"Windows64\\GameHDD\\%s", wFilename);
                     bSuccess = Win64_DeleteSaveDirectory(wFolderPath);
                 }
                 UIScene_LoadOrJoinMenu::DeleteSaveDataReturned((LPVOID)pClass->GetCallbackUniqueId(), bSuccess);
