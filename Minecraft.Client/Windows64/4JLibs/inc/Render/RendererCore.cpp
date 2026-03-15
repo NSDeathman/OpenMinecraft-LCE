@@ -833,6 +833,14 @@ void Renderer::Initialise(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)
     m_pDevice->CreateBuffer(&fanIndexDesc, &fanIndexData, &fanIndexBuffer);
     delete[] fanIndices;
 
+    m_shrinkCooldown = kShrinkCooldownTicks;
+    m_peakUsageSinceLastShrinkCheck = 0;
+
+#ifdef _DEBUG
+    m_peakCommandBuffers = 0;
+    m_peakHandles = 0;
+#endif
+
     InitializeCriticalSection(&Renderer::totalAllocCS);
 }
 
@@ -1074,4 +1082,47 @@ void Renderer::GrowCommandBufferArrays()
             m_commandVertexTypes[oldIdx] = 0;
         }
     }
+}
+
+void Renderer::ShrinkCommandBufferArrays()
+{
+    // Нельзя сжимать пока есть ожидающие удаления — они в хвосте,
+    // и при изменении размера нарушится их расположение
+    if (m_numBuffersToDeallocate > 0)
+        return;
+
+    const int currentSize = static_cast<int>(m_commandBuffers.size());
+    const int activeCount = static_cast<int>(m_currentCommandBuffer);
+
+    // Никогда не уменьшаемся ниже минимума
+    if (currentSize <= kMinCommandBuffers)
+        return;
+
+    // Проверяем порог: если занято >= 25% — не трогаем
+    if (activeCount >= static_cast<int>(currentSize * kShrinkThreshold))
+        return;
+
+    // Новый размер: 50% от текущего, но не меньше kMinCommandBuffers
+    // и не меньше чем нужно для активных буферов с запасом x2
+    const int newSize = max(kMinCommandBuffers, max(static_cast<int>(currentSize * kShrinkTarget), activeCount * 2));
+
+    // Если разница незначительна — не трогаем
+    if (newSize >= currentSize)
+        return;
+
+    // Активные буферы уже в зоне [0, m_currentCommandBuffer) — 
+    // они все влезают в newSize, просто усекаем хвост
+    m_commandBuffers.resize(newSize);
+    m_commandMatrices.resize(newSize);
+    m_bufferIdxToVertexIdx.resize(newSize, 0);
+    m_commandPrimitiveTypes.resize(newSize, 0);
+    m_commandVertexTypes.resize(newSize, 0);
+
+#ifdef _DEBUG
+    OutputDebugStringA(
+        ("Renderer: shrunk command buffer pool " +
+            std::to_string(currentSize) + " -> " +
+            std::to_string(newSize) + "\n").c_str()
+    );
+#endif
 }

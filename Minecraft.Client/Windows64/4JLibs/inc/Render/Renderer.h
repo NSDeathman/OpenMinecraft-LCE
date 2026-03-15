@@ -170,6 +170,23 @@ private:
     void DeleteInternalBuffer(int index);
     Renderer::Context &getContext();
     void GrowCommandBufferArrays();
+
+private:
+        void ShrinkCommandBufferArrays();
+
+        static constexpr int   kMinCommandBuffers = MAX_COMMAND_BUFFERS;  // нижняя граница, никогда не уменьшаем ниже
+        static constexpr int   kShrinkCooldownTicks = 300;  // ~5 секунд при 60 тик/с
+        static constexpr float kShrinkThreshold = 0.75f; // сжимаем если занято < kShrinkThreshold% слотов
+        static constexpr float kShrinkTarget = kShrinkThreshold; // сжимаем до kShrinkThreshold текущего размера
+
+        int  m_shrinkCooldown;    // обратный счётчик — сколько тиков осталось до следующей проверки
+        int  m_peakUsageSinceLastShrinkCheck; // пик использования за период cooldown
+
+#ifdef _DEBUG
+        DWORD m_peakCommandBuffers;
+        DWORD m_peakHandles;
+#endif
+
 public:
 
     enum eTextureSamplerFlags

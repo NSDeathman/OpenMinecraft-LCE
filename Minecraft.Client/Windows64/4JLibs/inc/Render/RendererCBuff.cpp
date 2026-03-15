@@ -418,9 +418,9 @@ void Renderer::CBuffTick()
 {
     EnterCriticalSection(&m_commandBufferCS);
 
+    // --- ”даление одного устаревшего буфера за тик ---
     if (m_numBuffersToDeallocate > 0)
     {
-        // ”дал€ем ровно один буфер за тик Ч чтобы не спайкать кадр
         const int totalSlots = static_cast<int>(m_commandBuffers.size());
         const int deleteIdx = totalSlots - static_cast<int>(m_numBuffersToDeallocate);
 
@@ -434,6 +434,30 @@ void Renderer::CBuffTick()
         m_commandVertexTypes[deleteIdx] = 0;
 
         --m_numBuffersToDeallocate;
+    }
+
+    // --- ќтслеживаем пик использовани€ за период ---
+    const int currentUsage = static_cast<int>(m_currentCommandBuffer);
+    if (currentUsage > m_peakUsageSinceLastShrinkCheck)
+        m_peakUsageSinceLastShrinkCheck = currentUsage;
+
+#ifdef _DEBUG
+    m_peakCommandBuffers = std::max(m_peakCommandBuffers, (DWORD)m_commandBuffers.size());
+    m_peakHandles = std::max(m_peakHandles, (DWORD)m_vertexIdxToBufferIdx.size());
+#endif
+
+    // --- ѕроверка на сжатие раз в kShrinkCooldownTicks тиков ---
+    if (--m_shrinkCooldown <= 0)
+    {
+        m_shrinkCooldown = kShrinkCooldownTicks;
+
+        // »спользуем пик за весь период, а не моментальное значение Ч
+        // защита от случайных провалов активности
+        const int capacityToCheck = static_cast<int>(m_commandBuffers.size());
+        if (m_peakUsageSinceLastShrinkCheck < static_cast<int>(capacityToCheck * kShrinkThreshold))
+            ShrinkCommandBufferArrays();
+
+        m_peakUsageSinceLastShrinkCheck = 0;
     }
 
     LeaveCriticalSection(&m_commandBufferCS);
