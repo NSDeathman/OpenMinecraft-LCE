@@ -549,11 +549,15 @@ void Villager::staticCtor()
 	MIN_MAX_VALUES[Item::porkChop_raw_Id] = pair<int,int>(14, 18);
 	MIN_MAX_VALUES[Item::beef_raw_Id] = pair<int,int>(14, 18);
 	MIN_MAX_VALUES[Item::chicken_raw_Id] = pair<int,int>(14, 18);
+	MIN_MAX_VALUES[Item::fish_raw_Id] = pair<int,int>(9, 13);
+	MIN_MAX_VALUES[Item::string_Id] = pair<int,int>(9, 13);
 	MIN_MAX_VALUES[Item::fish_cooked_Id] = pair<int,int>(9, 13);
 	MIN_MAX_VALUES[Item::seeds_wheat_Id] = pair<int,int>(34, 48);
 	MIN_MAX_VALUES[Item::seeds_melon_Id] = pair<int,int>(30, 38);
 	MIN_MAX_VALUES[Item::seeds_pumpkin_Id] = pair<int,int>(30, 38);
 	MIN_MAX_VALUES[Item::wheat_Id] = pair<int,int>(18, 22);
+	MIN_MAX_VALUES[Item::carrots_Id] = pair<int,int>(18, 22);
+	MIN_MAX_VALUES[Item::potatoBaked_Id] = pair<int,int>(18, 22);
 	MIN_MAX_VALUES[Tile::wool_Id] = pair<int,int>(14, 22);
 	MIN_MAX_VALUES[Item::rotten_flesh_Id] = pair<int,int>(36, 64);
 
