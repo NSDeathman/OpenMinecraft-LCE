@@ -18,36 +18,50 @@ class Biome
 {
 	friend class ChunkRebuildData;
 public:
-	// 4J JEV, replaces the static blocks.
+	static Biome* ocean;
+	static Biome* plains;
+	static Biome* desert;
+	static Biome* extremeHills;
+	static Biome* forest;	
+	static Biome* birchForest;
+	static Biome* rainForest;
+	static Biome* taiga;
+	static Biome* taigaSnowed;
+	static Biome* swampland;
+	static Biome* river;
+	static Biome* hell;
+	static Biome* sky;
+	static Biome* frozenOcean;
+	static Biome* frozenRiver;
+	static Biome* iceFlats;
+	static Biome* iceMountains;
+	static Biome* mushroomIsland;
+	static Biome* mushroomIslandShore;
+	static Biome* beaches;
+	static Biome* desertHills;
+	static Biome* forestHills;
+	static Biome* taigaHills;
+	static Biome* smallerExtremeHills;
+	static Biome* jungle;
+	static Biome* jungleHills;
+
 	static void staticCtor();
 
-	static Biome *biomes[256];
+	static std::vector<Biome*> biomes;
 
-	static Biome *ocean;
-	static Biome *plains;
-	static Biome *desert;
-	static Biome *extremeHills;
-	static Biome *forest;
-	static Biome *taiga;
-	static Biome *swampland;
-	static Biome *river;
-	static Biome *hell;
-	static Biome *sky;
-	static Biome *frozenOcean;
-	static Biome *frozenRiver;
-	static Biome *iceFlats;
-	static Biome *iceMountains;
-	static Biome *mushroomIsland;
-	static Biome *mushroomIslandShore ;
-	static Biome *beaches;
-	static Biome *desertHills;
-	static Biome *forestHills;
-	static Biome *taigaHills;
-	static Biome *smallerExtremeHills;
-	static Biome *jungle;
-	static Biome *jungleHills;
+	// Геттер для доступа по ID
+	static Biome* getBiome(int id);
 
-	static const int BIOME_COUNT = 23; // 4J Stu added
+	// Сеттер (регистрация) — вызывается автоматически в конструкторе
+	static void registerBiome(int id, Biome* biome);
+
+	// Получить текущее количество зарегистрированных биомов
+	static int getBiomeCount();
+
+	// Опционально: получить ссылку на весь вектор (для итерации)
+	static const std::vector<Biome*>& getAllBiomes() { return biomes; }
+
+	static const int BIOME_COUNT = 26;
 
 public:
 	wstring m_name;

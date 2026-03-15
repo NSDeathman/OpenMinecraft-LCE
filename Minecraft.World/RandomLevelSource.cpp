@@ -48,8 +48,8 @@ RandomLevelSource::RandomLevelSource(Level *level, int64_t seed, bool generateSt
 	perlinNoise1 = new PerlinNoise(random, 8);
 	perlinNoise3 = new PerlinNoise(random, 4);
 
-	scaleNoise = new PerlinNoise(random, 10);
-	depthNoise = new PerlinNoise(random, 16);
+	scaleNoise = new PerlinNoise(random, 8);
+	depthNoise = new PerlinNoise(random, 14);
 
 	if (FLOATING_ISLANDS)
 	{

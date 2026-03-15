@@ -9,7 +9,7 @@ BirchFeature::BirchFeature(bool doUpdate) : Feature(doUpdate)
 
 bool BirchFeature::place(Level *level, Random *random, int x, int y, int z)
 {
-	int treeHeight = random->nextInt(3) + 5;
+	int treeHeight = random->nextInt(8) + 5;
 
 	bool free = true;
 	if (y < 1 || y + treeHeight + 1 > Level::maxBuildHeight) return false;
