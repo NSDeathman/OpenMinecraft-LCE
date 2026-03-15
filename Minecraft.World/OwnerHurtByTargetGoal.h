@@ -16,4 +16,5 @@ public:
 
 	bool canUse();
 	void start();
+	void stop();
 };

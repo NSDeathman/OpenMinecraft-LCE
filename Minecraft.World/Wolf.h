@@ -76,6 +76,9 @@ public:
 	// For tooltips
 	int GetSynchedHealth();
 
+	virtual void onTameAggroStarted(shared_ptr<LivingEntity> target) override;
+	virtual void onTameAggroStopped() override;
+
 protected:
 	virtual shared_ptr<AgableMob> getBreedOffspring(shared_ptr<AgableMob> target);
 

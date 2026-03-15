@@ -36,6 +36,8 @@ public:
 	virtual void setOwnerUUID(const wstring &name);
 	virtual shared_ptr<Entity> getOwner();
 	virtual SitGoal *getSitGoal();
+	virtual void onTameAggroStarted(shared_ptr<LivingEntity> target) {}
+	virtual void onTameAggroStopped() {}
 	bool wantsToAttack(shared_ptr<LivingEntity> target, shared_ptr<LivingEntity> owner);
 	Team *getTeam();
 	bool isAlliedTo(shared_ptr<LivingEntity> other);

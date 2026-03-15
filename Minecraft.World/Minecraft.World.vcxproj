@@ -2445,6 +2445,7 @@
     <ClInclude Include="BiomeOverrideLayer.h" />
     <ClInclude Include="BiomeSource.h" />
     <ClInclude Include="BirchFeature.h" />
+    <ClInclude Include="BirchForestBiome.h" />
     <ClInclude Include="Blaze.h" />
     <ClInclude Include="BlockDestructionProgress.h" />
     <ClInclude Include="BlockGenMethods.h" />
@@ -2468,6 +2469,8 @@
     <ClInclude Include="ComparatorTileEntity.h" />
     <ClInclude Include="DaylightDetectorTile.h" />
     <ClInclude Include="DaylightDetectorTileEntity.h" />
+    <ClInclude Include="PrioritizeOwnerThreatGoal.h" />
+    <ClInclude Include="TameAnimalDefendGoal.h" />
     <ClInclude Include="DropperTile.h" />
     <ClInclude Include="DropperTileEntity.h" />
     <ClInclude Include="DummyCriteria.h" />
@@ -2847,6 +2850,8 @@
     <ClInclude Include="Witch.h" />
     <ClInclude Include="WitherBoss.h" />
     <ClInclude Include="WitherSkull.h" />
+    <ClInclude Include="WolfPackDistributedTargetGoal.h" />
+    <ClInclude Include="WolfRetreatGoal.h" />
     <ClInclude Include="WoodButtonTile.h" />
     <ClInclude Include="WoodSlabTile.h" />
     <ClInclude Include="WoodTile.h" />
@@ -3519,6 +3524,7 @@
     <ClCompile Include="BiomeOverrideLayer.cpp" />
     <ClCompile Include="BiomeSource.cpp" />
     <ClCompile Include="BirchFeature.cpp" />
+    <ClCompile Include="BirchForestBiome.cpp" />
     <ClCompile Include="Blaze.cpp" />
     <ClCompile Include="BlockDestructionProgress.cpp" />
     <ClCompile Include="BlockGenMethods.cpp" />
@@ -3540,6 +3546,8 @@
     <ClCompile Include="ComparatorTileEntity.cpp" />
     <ClCompile Include="DaylightDetectorTile.cpp" />
     <ClCompile Include="DaylightDetectorTileEntity.cpp" />
+    <ClCompile Include="PrioritizeOwnerThreatGoal.cpp" />
+    <ClCompile Include="TameAnimalDefendGoal.cpp" />
     <ClCompile Include="DropperTile.cpp" />
     <ClCompile Include="DropperTileEntity.cpp" />
     <ClCompile Include="DummyCriteria.cpp" />
@@ -3649,6 +3657,8 @@
     <ClCompile Include="StructureFeatureSavedData.cpp" />
     <ClCompile Include="Team.cpp" />
     <ClCompile Include="WeightedPressurePlateTile.cpp" />
+    <ClCompile Include="WolfPackDistributedTargetGoal.cpp" />
+    <ClCompile Include="WolfRetreatGoal.cpp" />
     <ClCompile Include="WoodButtonTile.cpp" />
     <ClCompile Include="WoolTileItem.cpp" />
     <ClCompile Include="CoalItem.cpp" />

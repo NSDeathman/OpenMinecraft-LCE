@@ -20,6 +20,7 @@
 #include "Wolf.h"
 #include "..\Minecraft.Client\Textures.h"
 #include "SoundTypes.h"
+#include "PrimedTnt.h"
 
 
 
@@ -39,20 +40,28 @@ Wolf::Wolf(Level *level) : TamableAnimal( level )
 
 	getNavigation()->setAvoidWater(true);
 	goalSelector.addGoal(1, new FloatGoal(this));
-	goalSelector.addGoal(2, sitGoal, false);
-	goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4));
-	goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, true));
-	goalSelector.addGoal(5, new FollowOwnerGoal(this, 1.0, 10, 2));
-	goalSelector.addGoal(6, new BreedGoal(this, 1.0));
-	goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0));
-	goalSelector.addGoal(8, new BegGoal(this, 8));
-	goalSelector.addGoal(9, new LookAtPlayerGoal(this, typeid(Player), 8));
-	goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+	goalSelector.addGoal(2, new WolfRetreatGoal(this, 0.25f, 1.5f));
+	goalSelector.addGoal(3, new AvoidPlayerGoal(this, typeid(Creeper), 12, 1.25, 1.25));
+	goalSelector.addGoal(4, new AvoidPlayerGoal(this, typeid(PrimedTnt), 12, 1.25, 1.25));
+	goalSelector.addGoal(5, sitGoal, false);
+	goalSelector.addGoal(6, new LeapAtTargetGoal(this, 0.4));
+	goalSelector.addGoal(7, new MeleeAttackGoal(this, 1.0, true));
+	goalSelector.addGoal(8, new FollowOwnerGoal(this, 1.0, 10, 2));
+	goalSelector.addGoal(9, new BreedGoal(this, 1.0));
+	goalSelector.addGoal(10, new RandomStrollGoal(this, 1.0));
+	goalSelector.addGoal(11, new BegGoal(this, 8));
+	goalSelector.addGoal(12, new LookAtPlayerGoal(this, typeid(Player), 8));
+	goalSelector.addGoal(13, new LookAtPlayerGoal(this, typeid(Wolf), 8));
+	goalSelector.addGoal(14, new RandomLookAroundGoal(this));
 
-	targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
-	targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
-	targetSelector.addGoal(3, new HurtByTargetGoal(this, true));
-	targetSelector.addGoal(4, new NonTameRandomTargetGoal(this, typeid(Sheep), 200, false));
+	targetSelector.addGoal(1, new HurtByTargetGoal(this, true));
+	targetSelector.addGoal(2, new OwnerHurtByTargetGoal(this));
+	targetSelector.addGoal(3, new PrioritizeOwnerThreatGoal(this));
+	targetSelector.addGoal(4, new OwnerHurtTargetGoal(this));
+	targetSelector.addGoal(5, new PackDistributedTargetGoal(this, true, 20.0f));
+	targetSelector.addGoal(6, new TameAnimalDefendGoal(this, true));
+	targetSelector.addGoal(7, new NonTameRandomTargetGoal(this, typeid(Sheep), 200, false));
+	targetSelector.addGoal(8, new NonTameRandomTargetGoal(this, typeid(Skeleton), 200, false));
 
 	setTame(false); // Initialize health
 }
@@ -81,14 +90,20 @@ bool Wolf::useNewAi()
 void Wolf::setTarget(shared_ptr<LivingEntity> target)
 {
 	TamableAnimal::setTarget(target);
-	if ( target == nullptr )
-	{
+	if (target == nullptr)
 		setAngry(false);
-	}
-	else if(!isTame())
-	{
+	else
 		setAngry(true);
-	}
+}
+
+void Wolf::onTameAggroStarted(shared_ptr<LivingEntity> target)
+{
+	setAngry(true);
+}
+
+void Wolf::onTameAggroStopped()
+{
+	setAngry(false);
 }
 
 void Wolf::serverAiMobStep()
@@ -474,8 +489,7 @@ bool Wolf::isFood(shared_ptr<ItemInstance> item)
 
 int Wolf::getMaxSpawnClusterSize()
 {
-	// 4J - changed - was 8 but we have a limit of only 8 wolves in the world so doesn't seem right potentially spawning them all in once cluster
-	return 4;
+	return 8;
 }
 
 bool Wolf::isAngry() 

@@ -32,5 +32,13 @@ void OwnerHurtByTargetGoal::start()
 		timestamp = owner->getLastHurtByMobTimestamp();
 	}
 
+	tameAnimal->onTameAggroStarted(owner->getLastHurtByMob());
+
 	TargetGoal::start();
+}
+
+void OwnerHurtByTargetGoal::stop()
+{
+	tameAnimal->onTameAggroStopped();
+	TargetGoal::stop();
 }
