@@ -107,7 +107,7 @@ vector<Texture *> *TextureManager::createTextures(const wstring &filename, bool 
 			const char *pchTextureName=wstringtofilename(filename);
 			char *pchUsrDir = app.GetBDUsrDirPath(pchTextureName);
 			wstring wstr (pchUsrDir, pchUsrDir+strlen(pchUsrDir));
-			drive= wstr + L"\\Minecraft.Assets\\Common\\res\\TitleUpdate\\";
+			drive= wstr + L"\\Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 #endif

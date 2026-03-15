@@ -32,12 +32,12 @@ wstring TexturePack::getPath(bool bTitleUpdateTexture /*= false*/,const char *pc
 
 		if(bTitleUpdateTexture)
 		{
-			wDrive= wstr + L"\\Minecraft.Assets\\Common\\res\\TitleUpdate\\";
+			wDrive= wstr + L"\\Assets\\Common\\res\\TitleUpdate\\";
 
 		}
 		else
 		{
-			wDrive= wstr + L"/Minecraft.Assets/Common/";
+			wDrive= wstr + L"/Assets/Common/";
 		}
 	}
 	else
@@ -49,11 +49,11 @@ wstring TexturePack::getPath(bool bTitleUpdateTexture /*= false*/,const char *pc
 		if(bTitleUpdateTexture)
 		{
 			// Make the content package point to to the UPDATE: drive is needed
-			wDrive= wstr + L"\\Minecraft.Assets\\Common\\res\\TitleUpdate\\";
+			wDrive= wstr + L"\\Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 		{
-			wDrive= wstr + L"/Minecraft.Assets/Common/";
+			wDrive= wstr + L"/Assets/Common/";
 		}			
 	}
 
@@ -64,21 +64,21 @@ wstring TexturePack::getPath(bool bTitleUpdateTexture /*= false*/,const char *pc
 	if(bTitleUpdateTexture)
 	{
 		// Make the content package point to to the UPDATE: drive is needed
-		wDrive= wstr + L"Minecraft.Assets\\Common\\res\\TitleUpdate\\";
+		wDrive= wstr + L"Assets\\Common\\res\\TitleUpdate\\";
 	}
 	else
 	{
-		wDrive= wstr + L"Minecraft.Assets\\Common\\";
+		wDrive= wstr + L"Assets\\Common\\";
 	}
 #else
 	if(bTitleUpdateTexture)
 	{
 		// Make the content package point to to the UPDATE: drive is needed
-		wDrive=L"Minecraft.Assets\\Common\\res\\TitleUpdate\\";
+		wDrive=L"Assets\\Common\\res\\TitleUpdate\\";
 	}
 	else
 	{
-		wDrive=L"Minecraft.Assets/Common/";
+		wDrive=L"Assets/Common/";
 	}
 #endif
 #endif

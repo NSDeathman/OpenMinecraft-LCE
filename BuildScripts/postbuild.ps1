@@ -18,12 +18,12 @@ foreach ($dir in $directories) {
 }
 
 $copies = @(
-    @{ Source = "Common\Media";    Dest = "MInecraft.Assets\Common\Media" },
-    @{ Source = "Common\res";      Dest = "MInecraft.Assets\Common\res" },
-    @{ Source = "Common\Trial";    Dest = "MInecraft.Assets\Common\Trial" },
-    @{ Source = "Common\Tutorial"; Dest = "MInecraft.Assets\Common\Tutorial" },
+    @{ Source = "Common\Media";    Dest = "Assets\Common\Media" },
+    @{ Source = "Common\res";      Dest = "Assets\Common\res" },
+    @{ Source = "Common\Trial";    Dest = "Assets\Common\Trial" },
+    @{ Source = "Common\Tutorial"; Dest = "Assets\Common\Tutorial" },
     @{ Source = "Windows64\GameHDD"; Dest = "Windows64\GameHDD" },
-    @{ Source = "Windows64Media";  Dest = "MInecraft.Assets\Win64" }
+    @{ Source = "Windows64Media";  Dest = "Assets\Win64" }
 )
 
 foreach ($copy in $copies) {

@@ -4403,15 +4403,15 @@ void CMinecraftApp::loadMediaArchive()
 	wstring mediapath = L"";
 
 #ifdef __PS3__
-	mediapath = L"Minecraft.Assets\\Common\\Media\\MediaPS3.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaPS3.arc";
 #elif _WINDOWS64
-	mediapath = L"Minecraft.Assets\\Common\\Media\\MediaWindows64.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaWindows64.arc";
 #elif __ORBIS__
-	mediapath = L"Minecraft.Assets\\Common\\Media\\MediaOrbis.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaOrbis.arc";
 #elif _DURANGO
-	mediapath = L"Minecraft.Assets\\Common\\Media\\MediaDurango.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaDurango.arc";
 #elif __PSVITA__
-	mediapath = L"Minecraft.Assets\\Common\\Media\\MediaPSVita.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaPSVita.arc";
 #endif
 
 	if (!mediapath.empty())
