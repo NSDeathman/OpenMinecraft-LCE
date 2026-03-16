@@ -1,45 +1,72 @@
-![Legacy Edition Banner](.github/banner.png)
-# MinecraftConsoles (Legacy Console Edition)
+# OpenMinecraft Legacy Console Edition
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/jrum7HhegA)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.gg/ysTEzFVDCu)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md)
+[![AI Friendly](https://img.shields.io/badge/AI-friendly-blueviolet)](CONTRIBUTING.md)
 
-This project is based on source code of Minecraft Legacy Console Edition v1.6.0560.0 (TU19) with some fixes and improvements applied. 
+This project is a **community-driven fork** of [MinecraftConsoles](https://github.com/smartcmd/MinecraftConsoles), based on the leaked source code of Minecraft Legacy Console Edition v1.6.0560.0 (TU19). It inherits all the fixes and improvements from the original while embracing a completely **open contribution philosophy**.
 
-The current goal of MinecraftConsoles is to be a multi-platform base for further development, such as modding, backports, and anything else LCE. On top of that, we're working to make this a quality experience on Desktop with or without a controller while (long-term) retaining console support. 
+## 🌟 Our Philosophy
 
-See our our [Contributor's Guide](./CONTRIBUTING.md) for more information on the goals of this project.
+OpenMinecraft Legacy Console Edition is built on the belief that creativity should have no boundaries. We welcome:
 
-## Download
-Windows users can download our [Nightly Build](https://github.com/smartcmd/MinecraftConsoles/releases/tag/nightly)! Simply download the `.zip` file and extract it to a folder where you'd like to keep the game. You can set your username in `username.txt` (you'll have to make this file)
+- ✨ **Any new features** – No arbitrary restrictions. If you can imagine it, we’re open to it.
+- 🔄 **Porting from Java Edition or Bedrock Edition** – Bring over mechanics, items, or anything that fits.
+- 🤖 **AI‑assisted contributions** – We recognize AI as a valuable tool. As long as the code is reviewed and meets our quality standards, it’s welcome.
+- 🌍 **Contributions from everyone** – Whether you’re a seasoned developer or just starting, your ideas matter.
 
-If you're looking for Dedicated Server software, download its [Nightly Build here](https://github.com/smartcmd/MinecraftConsoles/releases/tag/nightly-dedicated-server). Similar instructions to the client more or less, though see further down in this README for more info on that.
+We want this to be a true community project where innovation thrives and everyone can help shape the future of Legacy Console Edition on modern platforms.
 
-## Platform Support
+---
 
-- **Windows**: Supported for building and running the project
-- **macOS / Linux**: The Windows nightly build will run through Wine or CrossOver based on community reports, but this is unofficial and not currently tested by the maintainers when pushing updates
-- **Android**: The Windows nightly build does run but has stability / frametime pacing issues frequently reported
-- **iOS**: No current support
-- **All Consoles**: Console support remains in the code, but maintainers are not currently verifying console functionality / porting UI Changes to the console builds at this time.
+## 📥 Download
 
-## Features
+Pre-built binaries for Windows are available in our [Releases](https://github.com/yourusername/OpenMinecraft/releases) (coming soon).  
+Nightly builds may also be provided – stay tuned.
 
-- Fixed compilation and execution in both Debug and Release mode on Windows using Visual Studio 2022
-- Added support for keyboard and mouse input
-- Added fullscreen mode support (toggle using F11)
-- (WIP) Disabled V-Sync for better performance
-- Added a high-resolution timer path on Windows for smoother high-FPS gameplay timing
-- Device's screen resolution will be used as the game resolution instead of using a fixed resolution (1920x1080)
-- LAN Multiplayer & Discovery
-- Dedicated Server Software (`Minecraft.Server.exe`)
-- Added persistent username system via `username.txt`
-- Decoupled usernames and UIDs to allow username changes
-- Fixed various security issues present in the original codebase
-- Splitscreen Multiplayer support (connect to dedicated servers, etc)
-- In-game server management (Add Server button, etc)
+If you’re looking for the **Dedicated Server**, check the releases section as well.
 
+---
 
-## Controls (Keyboard & Mouse)
+## 🖥️ Platform Support
+
+- **Windows**: Fully supported for building and running.
+- **macOS / Linux**: The Windows build runs via Wine/CrossOver (community reports), but official support is not guaranteed yet.
+- **Android / iOS**: Community experiments are welcome!
+- **Consoles**: The original console code remains, but we currently lack the hardware to test it. **We’d love contributions from anyone who can help revive console support!**
+
+---
+
+## ✨ Features (inherited + future)
+
+All the great work from MinecraftConsoles is preserved, including:
+
+- Fixed compilation with Visual Studio 2022 (Debug/Release)
+- Keyboard & mouse input
+- Fullscreen toggle (F11)
+- Disabled V‑Sync (WIP) for smoother gameplay
+- High‑resolution timer for high‑FPS timing
+- Native screen resolution (instead of fixed 1080p)
+- LAN multiplayer & discovery
+- Dedicated server executable
+- Persistent username via `username.txt`
+- Decoupled UID from username
+- Security fixes
+- Splitscreen multiplayer
+- In‑game server management
+
+**On top of this, we encourage additions like:**
+
+- Porting modern features from Java/Bedrock
+- New gameplay mechanics
+- Quality‑of‑life improvements
+- Expanded platform support (Linux native, Android, etc.)
+
+---
+
+## 🎮 Controls (Keyboard & Mouse)
+
+*Same as original MinecraftConsoles – feel free to suggest improvements!*
 
 - **Movement**: `W` `A` `S` `D`
 - **Jump / Fly (Up)**: `Space`
@@ -48,177 +75,106 @@ If you're looking for Dedicated Server software, download its [Nightly Build her
 - **Inventory**: `E`
 - **Chat**: `T`
 - **Drop Item**: `Q`
-- **Crafting**: `C` Use `Q` and `E` to move through tabs (cycles Left/Right)
-- **Toggle View (FPS/TPS)**: `F5`
+- **Crafting**: `C` (use `Q`/`E` to cycle tabs)
+- **Toggle View**: `F5`
 - **Fullscreen**: `F11`
 - **Pause Menu**: `Esc`
-- **Attack / Destroy**: `Left Click`
+- **Attack**: `Left Click`
 - **Use / Place**: `Right Click`
-- **Select Item**: `Mouse Wheel` or keys `1` to `9`
-- **Accept or Decline Tutorial hints**: `Enter` to accept and `B` to decline
-- **Game Info (Player list and Host Options)**: `TAB`
+- **Select Item**: `Mouse Wheel` or `1`–`9`
+- **Accept/Decline Tutorial**: `Enter` / `B`
+- **Player List / Host Options**: `TAB`
 - **Toggle HUD**: `F1`
 - **Toggle Debug Info**: `F3`
 - **Open Debug Overlay**: `F4`
 - **Toggle Debug Console**: `F6`
 
+---
 
-## Client Launch Arguments
+## 🚀 Client Launch Arguments
 
-| Argument           | Description                                                                                         |
-|--------------------|-----------------------------------------------------------------------------------------------------|
-| `-name <username>` | Overrides your in-game username.                                                                    |
-| `-fullscreen`      | Launches the game in Fullscreen mode                                                                |
+| Argument           | Description                         |
+|--------------------|-------------------------------------|
+| `-name <username>` | Override in‑game username           |
+| `-fullscreen`      | Launch in fullscreen mode           |
 
 Example:
-```
 Minecraft.Client.exe -name Steve -fullscreen
-```
 
-## LAN Multiplayer
-LAN multiplayer is available on the Windows build
+text
 
-- Hosting a multiplayer world automatically advertises it on the local network
-- Other players on the same LAN can discover the session from the in-game Join Game menu
-- Game connections use TCP port `25565` by default
-- LAN discovery uses UDP port `25566`
-- Add servers to your server list with the in-game Add Server button (temp)
-- Rename yourself without losing data by keeping your `uid.dat`
-- Split-screen players can join in, even in Multiplayer
+---
 
-Parts of this feature are based on code from [LCEMP](https://github.com/LCEMP/LCEMP) (thanks!)
+## 🌐 LAN Multiplayer
 
-# Dedicated Server Software
+LAN multiplayer works on Windows builds:
 
+- Hosted worlds are advertised automatically on the local network.
+- Other LAN players can discover and join from the in‑game menu.
+- TCP port `25565` (game), UDP port `25566` (discovery).
+- Add servers manually with the in‑game **Add Server** button.
+- Rename yourself without losing data – your `uid.dat` stays constant.
+- Split‑screen players can join even in multiplayer.
 
-## Dedicated Server in Docker (Wine)
+*LAN discovery code based on [LCEMP](https://github.com/LCEMP/LCEMP) – thanks!*
 
-This repository includes a lightweight Docker setup for running the Windows dedicated server under Wine.
-### Quick Start (No Build, Recommended)
+---
 
-No local build is required. The container image is pulled from GHCR.
+## 🧩 Dedicated Server
 
+The dedicated server (`Minecraft.Server.exe`) can be run directly or inside a Docker container (via Wine).
+
+### Docker Quick Start (using prebuilt image)
 ```bash
-./start-dedicated-server.sh
-```
-
-`start-dedicated-server.sh` does the following:
-- uses `docker-compose.dedicated-server.ghcr.yml`
-- pulls latest image, then starts the container
-
-If you want to skip pulling and just start:
-
-```bash
-./start-dedicated-server.sh --no-pull
-```
-
-Equivalent manual command:
-
-```bash
-docker compose -f docker-compose.dedicated-server.ghcr.yml up -d
-```
-
-### Local Build Mode (Optional)
-
-Use this only when you want to run your own locally built `Minecraft.Server` binary in Docker.
-**A local build of `Minecraft.Server` is required for this mode.**
-
-```bash
+./start-dedicated-server.sh   # pulls the latest image and starts the container
+Local Build in Docker
+bash
 docker compose -f docker-compose.dedicated-server.yml up -d --build
-```
+Server Properties
+server.properties controls server behaviour. See the original documentation for details.
 
-Useful environment variables:
-- `XVFB_DISPLAY` (default: `:99`)
-- `XVFB_SCREEN` (default: `64x64x16`, tiny virtual display used by Wine)
+Server Launch Arguments
+Arguments override properties:
 
-Fixed server runtime behavior in container:
-- executable path: `/srv/mc/Minecraft.Server.exe`
-- bind IP: `0.0.0.0`
-- server port: `25565`
+Argument	Description
+-port <1-65535>	Override server-port
+-ip <addr>	Override server-ip
+-name <name>	Override server-name (max 16 chars)
+-maxplayers <1-8>	Override max-players
+-seed <int64>	Override level-seed
+-loglevel <level>	Override log-level
+-help	Show usage
 
-Persistent files are bind-mounted to host:
-- `./server-data/server.properties` -> `/srv/mc/server.properties`
-- `./server-data/GameHDD` -> `/srv/mc/Windows64/GameHDD`
+---
 
-## About `server.properties`
+## 🛠️ Build Instructions
+Install Visual Studio 2019 - 2022 with “Desktop development with C++”.
 
-`Minecraft.Server` reads `server.properties` from the executable working directory (Docker image: `/srv/mc/server.properties`).
-If the file is missing or contains invalid values, defaults are auto-generated/normalized on startup.
+Clone this repository.
 
-Important keys:
+Open MinecraftConsoles.sln.
 
-| Key | Values / Range | Default | Notes |
-|-----|-----------------|---------|-------|
-| `server-port` | `1-65535` | `25565` | Listen TCP port |
-| `server-ip` | string | `0.0.0.0` | Bind address |
-| `server-name` | string (max 16 chars) | `DedicatedServer` | Host display name |
-| `max-players` | `1-8` | `8` | Public player slots |
-| `level-name` | string | `world` | Display world name |
-| `level-id` | safe ID string | derived from `level-name` | Save folder ID; normalized automatically |
-| `level-seed` | int64 or empty | empty | Empty = random seed |
-| `world-size` | `classic\|small\|medium\|large` | `classic` | World size preset for new worlds and expansion target for existing worlds |
-| `log-level` | `debug\|info\|warn\|error` | `info` | Server log verbosity |
-| `autosave-interval` | `5-3600` | `60` | Seconds between autosaves |
-| `white-list` | `true/false` | `false` | Enable access list checks |
-| `lan-advertise` | `true/false` | `false` | LAN session advertisement |
+Set Minecraft.Client as startup project.
 
-Minimal example:
+Choose Debug (or Release) and Windows64 platform, then build & run.
 
-```properties
-server-name=DedicatedServer
-server-port=25565
-max-players=8
-level-name=world
-level-seed=
-world-size=classic
-log-level=info
-white-list=false
-lan-advertise=false
-autosave-interval=60
-```
-
-## Dedicated Server launch arguments
-
-The server loads base settings from `server.properties`, then CLI arguments override those values.
-
-| Argument | Description |
-|----------|-------------|
-| `-port <1-65535>` | Override `server-port` |
-| `-ip <addr>` | Override `server-ip` |
-| `-bind <addr>` | Alias of `-ip` |
-| `-name <name>` | Override `server-name` (max 16 chars) |
-| `-maxplayers <1-8>` | Override `max-players` |
-| `-seed <int64>` | Override `level-seed` |
-| `-loglevel <level>` | Override `log-level` (`debug`, `info`, `warn`, `error`) |
-| `-help` / `--help` / `-h` | Print usage and exit |
-
-Examples:
-
-```powershell
-Minecraft.Server.exe -name MyServer -port 25565 -ip 0.0.0.0 -maxplayers 8 -loglevel info
-Minecraft.Server.exe -seed 123456789
-```
-
-## Build & Run
-
-1. Install [Visual Studio 2022](https://aka.ms/vs/17/release/vs_community.exe).
-2. Clone the repository.
-3. Open the project by double-clicking `MinecraftConsoles.sln`.
-4. Make sure `Minecraft.Client` is set as the Startup Project.
-5. Set the build configuration to **Debug** (Release is also ok but missing some debug features) and the target platform to **Windows64**, then build and run.
-
-### CMake (Windows x64)
-
-```powershell
+Using CMake
+powershell
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Debug --target MinecraftClient
-```
+For more details, see COMPILE.md.
 
-For more information, see [COMPILE.md](COMPILE.md).
+---
 
-## Contributors
-Would you like to contribute to this project? Please read our [Contributor's Guide](CONTRIBUTING.md) before doing so! This document includes our current goals, standards for inclusions, rules, and more.
+## 🤝 Contributing
+We’d love your help! Please read our Contributor’s Guide before opening a pull request. Highlights:
 
-## Star History
+No feature is off‑limits by default – propose and discuss!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=smartcmd/MinecraftConsoles&type=date&legend=top-left)](https://www.star-history.com/?spm=a2c6h.12873639.article-detail.7.7b9d7fabjNxTRk#smartcmd/MinecraftConsoles&type=date&legend=top-left)
+AI‑generated code is accepted, but must be reviewed and tested.
+
+Be respectful and collaborative.
+
+Let’s build the ultimate Legacy Console Edition together!
+
+This project is a fork of MinecraftConsoles by smartcmd and contributors. We thank them for their foundational work.
