@@ -309,6 +309,8 @@
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <EnableUnitySupport>false</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -1381,10 +1383,17 @@
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/FS /Ob3 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+<<<<<<< Updated upstream
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+=======
+      <MinimalRebuild>false</MinimalRebuild>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
+      <FloatingPointModel>Fast</FloatingPointModel>
+>>>>>>> Stashed changes
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
