@@ -132,6 +132,7 @@ bash
 docker compose -f docker-compose.dedicated-server.yml up -d --build
 Server Properties
 server.properties controls server behaviour. See the original documentation for details.
+```
 
 Server Launch Arguments
 Arguments override properties:
