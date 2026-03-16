@@ -20,6 +20,7 @@ $copies = @(
     @{ Source = "Common\Tutorial"; Dest = "Assets\Common\Tutorial" },
     @{ Source = "Windows64\GameHDD"; Dest = "Windows64\GameHDD" },
     @{ Source = "Windows64Media";  Dest = "Assets\Win64" }
+	@{ Source = "Minecraft.Client\Windows64\Iggy\lib\redist64\iggy_w64.dll"; Dest = "" }
 )
 
 foreach ($copy in $copies) {
