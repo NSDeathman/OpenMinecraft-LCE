@@ -615,6 +615,7 @@
     <ClCompile Include="Console\commands\whitelist\CliCommandWhitelist.cpp">
       <Filter>Server\Console\Commands</Filter>
     </ClCompile>
+    <ClCompile Include="..\Minecraft.Client\Common\Audio\MusicTrackManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Console\ServerCli.h">
@@ -726,6 +727,7 @@
     <ClInclude Include="Console\commands\IServerCliCommand.h">
       <Filter>Server\Console\Commands</Filter>
     </ClInclude>
+    <ClInclude Include="..\Minecraft.Client\Common\Audio\MusicTrackManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Minecraft.Client\Xbox\MinecraftWindows.rc" />
@@ -734,4 +736,3 @@
     <MASM Include="..\Minecraft.Client\iob_shim.asm" />
   </ItemGroup>
 </Project>
-
