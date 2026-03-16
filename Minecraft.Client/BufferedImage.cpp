@@ -92,11 +92,11 @@ BufferedImage::BufferedImage(const wstring& File, bool filenameHasExtension /*=f
 		if(bTitleUpdateTexture)
 		{
 			// Make the content package point to to the UPDATE: drive is needed
-			wDrive= wstr + L"\\Common\\res\\TitleUpdate\\";
+			wDrive= wstr + L"\\Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 		{
-			wDrive= wstr + L"/Common/";
+			wDrive= wstr + L"/Assets/Common/";
 		}
 #elif __PSVITA__
 
@@ -107,31 +107,31 @@ BufferedImage::BufferedImage(const wstring& File, bool filenameHasExtension /*=f
 		if(bTitleUpdateTexture)
 		{
 			// Make the content package point to to the UPDATE: drive is needed
-			wDrive= wstr + L"\\Common\\res\\TitleUpdate\\";
+			wDrive= wstr + L"\\Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 		{
-			wDrive= wstr + L"/Common/";
+			wDrive= wstr + L"/Assets/Common/";
 		}*/
 
 		if(bTitleUpdateTexture)
 		{
 			// Make the content package point to to the UPDATE: drive is needed
-			wDrive= L"Common\\res\\TitleUpdate\\";
+			wDrive= L"Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 		{
-			wDrive= L"Common/";
+			wDrive= L"Assets/Common/";
 		}
 #else
 		if(bTitleUpdateTexture)
 		{
 			// Make the content package point to to the UPDATE: drive is needed
-			wDrive= L"Common\\res\\TitleUpdate\\";
+			wDrive= L"\\Assets\\Common\\res\\TitleUpdate\\";
 		}
 		else
 		{
-			wDrive= L"Common/";
+			wDrive= L"Assets/Common/";
 		}
 #endif
 

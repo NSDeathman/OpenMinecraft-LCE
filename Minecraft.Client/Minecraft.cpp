@@ -150,7 +150,7 @@ Minecraft::Minecraft(Component *mouseComponent, Canvas *parent, MinecraftApplet 
 	progressRenderer = nullptr;
 	gameRenderer = nullptr;
 	bgLoader = nullptr;
-
+	
 	ticks = 0;
 	// 4J-PB - moved into the local player
 	//missTime = 0;
@@ -1629,7 +1629,7 @@ void Minecraft::run_middle()
 						s_prevXButtons[i] = xCurButtons;
 					}
 					bool startJustPressed = s_startPressLatch[i] > 0;
-					bool tryJoin = !pause && !ui.IsIgnorePlayerJoinMenuDisplayed(ProfileManager.GetPrimaryPad()) && g_NetworkManager.SessionHasSpace() && xCurButtons != 0;
+					bool tryJoin = !pause && !ui.IsIgnorePlayerJoinMenuDisplayed(ProfileManager.GetPrimaryPad()) && g_NetworkManager.SessionHasSpace() && xCurButtons != 0 && g_KBMInput.IsWindowFocused();
 #else
 					bool tryJoin = !pause && !ui.IsIgnorePlayerJoinMenuDisplayed(ProfileManager.GetPrimaryPad()) && g_NetworkManager.SessionHasSpace() && RenderManager.IsHiDef() && InputManager.ButtonPressed(i);
 #endif
@@ -2351,6 +2351,94 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		{
 			//            setScreen(new InBedChatScreen());		// 4J - TODO put back in
 		}
+		// === Динамический свет от светящегося блока в руке ===
+		{
+			static int  lastLightX[XUSER_MAX_COUNT];
+			static int  lastLightY[XUSER_MAX_COUNT];
+			static int  lastLightZ[XUSER_MAX_COUNT];
+			static bool lightPlaced[XUSER_MAX_COUNT];
+			static int  lastHeldItemId[XUSER_MAX_COUNT];
+			static bool initialized = false;
+			if (!initialized)
+			{
+				for (int i = 0; i < XUSER_MAX_COUNT; i++)
+				{
+					lastLightX[i] = lastLightY[i] = lastLightZ[i] = 0;
+					lightPlaced[i] = false;
+					lastHeldItemId[i] = -1;
+				}
+				initialized = true;
+			}
+
+			if (player != nullptr && level != nullptr)
+			{
+				shared_ptr<ItemInstance> heldItem = nullptr;
+				if (player->inventory->IsHeldItem())
+					heldItem = player->inventory->getSelected();
+				int heldItemId = (heldItem != nullptr) ? heldItem->getItem()->id : -1;
+
+				bool holdingLight = (heldItemId >= 0)
+					&& (heldItemId < 256)
+					&& (Tile::tiles[heldItemId] != nullptr)
+					&& (Tile::lightEmission[heldItemId] > 0);
+
+				// Предмет в руке сменился — убираем старый блок света
+				bool itemChanged = (heldItemId != lastHeldItemId[iPad]);
+				if (itemChanged && lightPlaced[iPad])
+				{
+					int ox = lastLightX[iPad], oy = lastLightY[iPad], oz = lastLightZ[iPad];
+					if (level->getTile(ox, oy, oz) == Tile::lightSourceBlock_Id)
+						level->setTileAndData(ox, oy, oz, 0, 0, Tile::UPDATE_CLIENTS);
+					lightPlaced[iPad] = false;
+				}
+				lastHeldItemId[iPad] = heldItemId;
+
+				int curX = Mth::floor(player->x);
+				int curY = Mth::floor(player->y);
+				int curZ = Mth::floor(player->z);
+
+				if (holdingLight)
+				{
+					// Игрок переместился — убираем старый блок
+					bool positionChanged = (curX != lastLightX[iPad]) ||
+						(curY != lastLightY[iPad]) ||
+						(curZ != lastLightZ[iPad]);
+					if (lightPlaced[iPad] && positionChanged)
+					{
+						int ox = lastLightX[iPad], oy = lastLightY[iPad], oz = lastLightZ[iPad];
+						if (level->getTile(ox, oy, oz) == Tile::lightSourceBlock_Id)
+							level->setTileAndData(ox, oy, oz, 0, 0, Tile::UPDATE_CLIENTS);
+						lightPlaced[iPad] = false;
+					}
+
+					if (!lightPlaced[iPad])
+					{
+						if (level->isEmptyTile(curX, curY, curZ))
+						{
+							Tile::lightEmission[Tile::lightSourceBlock_Id] = Tile::lightEmission[heldItemId];
+							level->setTileAndData(curX, curY, curZ,
+								Tile::lightSourceBlock_Id, 0, Tile::UPDATE_CLIENTS);
+							lastLightX[iPad] = curX;
+							lastLightY[iPad] = curY;
+							lastLightZ[iPad] = curZ;
+							lightPlaced[iPad] = true;
+						}
+					}
+				}
+				else
+				{
+					// Не держим светящийся блок — убираем свет
+					if (lightPlaced[iPad])
+					{
+						int ox = lastLightX[iPad], oy = lastLightY[iPad], oz = lastLightZ[iPad];
+						if (level->getTile(ox, oy, oz) == Tile::lightSourceBlock_Id)
+							level->setTileAndData(ox, oy, oz, 0, 0, Tile::UPDATE_CLIENTS);
+						lightPlaced[iPad] = false;
+					}
+				}
+			}
+		}
+		// === Конец динамического света ===
 	}
 	else if (screen != nullptr && (dynamic_cast<InBedChatScreen *>(screen)!=nullptr) && !player->isSleeping())
 	{
@@ -3706,7 +3794,9 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 					app.EnableDebugOverlay(options->renderDebug,iPad);
 #else
 					// 4J Stu - The xbox uses a completely different way of navigating to this scene
-					ui.NavigateToScene(0, eUIScene_DebugOverlay, nullptr, eUILayer_Debug);
+					// Always open in the fullscreen group so the overlay spans the full window
+					// regardless of split-screen viewport configuration.
+					ui.NavigateToScene(0, eUIScene_DebugOverlay, nullptr, eUILayer_Debug, eUIGroup_Fullscreen);
 #endif
 #endif
 				}

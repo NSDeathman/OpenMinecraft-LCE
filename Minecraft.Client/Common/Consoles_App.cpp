@@ -38,6 +38,9 @@
 #include "GameRules\ConsoleSchematicFile.h"
 #include "..\User.h"
 #include "..\..\Minecraft.World\LevelData.h"
+#if defined(_WINDOWS64) && defined(MINECRAFT_SERVER_BUILD)
+#include "..\..\Minecraft.Server\ServerLogManager.h"
+#endif
 #include "..\..\Minecraft.World\net.minecraft.world.entity.player.h"
 #include "..\EntityRenderDispatcher.h"
 #include "..\..\Minecraft.World\compression.h"
@@ -240,12 +243,21 @@ void CMinecraftApp::DebugPrintf(const char *szFormat, ...)
 {
 
 #ifndef _FINAL_BUILD
-	char    buf[1024];
-	va_list ap;
-	va_start(ap, szFormat);
-	vsnprintf(buf, sizeof(buf), szFormat, ap);
-	va_end(ap);
-	OutputDebugStringA(buf);
+    va_list ap;
+    va_start(ap, szFormat);
+#if defined(_WINDOWS64) && defined(MINECRAFT_SERVER_BUILD)
+    // Dedicated server routes client debug spew through ServerLogger so CLI output stays prompt-safe.
+    if (ServerRuntime::ServerLogManager::ShouldForwardClientDebugLogs())
+    {
+        ServerRuntime::ServerLogManager::ForwardClientAppDebugLogV(szFormat, ap);
+        va_end(ap);
+        return;
+    }
+#endif
+    char    buf[1024];
+    vsnprintf(buf, sizeof(buf), szFormat, ap);
+    va_end(ap);
+    OutputDebugStringA(buf);
 #endif
 
 }
@@ -253,53 +265,62 @@ void CMinecraftApp::DebugPrintf(const char *szFormat, ...)
 void CMinecraftApp::DebugPrintf(int user, const char *szFormat, ...)
 {
 #ifndef _FINAL_BUILD
-	if(user == USER_NONE)
-		return;
-	char    buf[1024];
-	va_list ap;
-	va_start(ap, szFormat);
-	vsnprintf(buf, sizeof(buf), szFormat, ap);
-	va_end(ap);
+    if(user == USER_NONE)
+        return;
+    va_list ap;
+    va_start(ap, szFormat);
+#if defined(_WINDOWS64) && defined(MINECRAFT_SERVER_BUILD)
+    // Dedicated server routes client debug spew through ServerLogger so CLI output stays prompt-safe.
+    if (ServerRuntime::ServerLogManager::ShouldForwardClientDebugLogs())
+    {
+        ServerRuntime::ServerLogManager::ForwardClientUserDebugLogV(user, szFormat, ap);
+        va_end(ap);
+        return;
+    }
+#endif
+    char    buf[1024];
+    vsnprintf(buf, sizeof(buf), szFormat, ap);
+    va_end(ap);
 #ifdef __PS3__
-	unsigned int writelen;
-	sys_tty_write(SYS_TTYP_USER1 + ( user - 1 ), buf, strlen(buf), &writelen );
+    unsigned int writelen;
+    sys_tty_write(SYS_TTYP_USER1 + ( user - 1 ), buf, strlen(buf), &writelen );
 #elif defined __PSVITA__
-	switch(user)
-	{
-	case 0:
-		{
-			SceUID tty2 = sceIoOpen("tty2:", SCE_O_WRONLY, 0);
-			if(tty2>=0)
-			{
-				std::string string1(buf);
-				sceIoWrite(tty2, string1.c_str(), string1.length());
-				sceIoClose(tty2);
-			}
-		}
-		break;
-	case 1:
-		{
-			SceUID tty3 = sceIoOpen("tty3:", SCE_O_WRONLY, 0);
-			if(tty3>=0)
-			{
-				std::string string1(buf);
-				sceIoWrite(tty3, string1.c_str(), string1.length());
-				sceIoClose(tty3);
-			}
-		}
-		break;
-	default:
-		OutputDebugStringA(buf);
-		break;
-	}
+    switch(user)
+    {
+    case 0:
+        {
+            SceUID tty2 = sceIoOpen("tty2:", SCE_O_WRONLY, 0);
+            if(tty2>=0)
+            {
+                std::string string1(buf);
+                sceIoWrite(tty2, string1.c_str(), string1.length());
+                sceIoClose(tty2);
+            }
+        }
+        break;
+    case 1:
+        {
+            SceUID tty3 = sceIoOpen("tty3:", SCE_O_WRONLY, 0);
+            if(tty3>=0)
+            {
+                std::string string1(buf);
+                sceIoWrite(tty3, string1.c_str(), string1.length());
+                sceIoClose(tty3);
+            }
+        }
+        break;
+    default:
+        OutputDebugStringA(buf);
+        break;
+    }
 #else
-	OutputDebugStringA(buf);
+    OutputDebugStringA(buf);
 #endif
 #ifndef _XBOX
-	if(user == USER_UI)
-	{
-		ui.logDebugString(buf);
-	}
+    if(user == USER_UI)
+    {
+        ui.logDebugString(buf);
+    }
 #endif
 #endif
 }
@@ -4403,60 +4424,21 @@ void CMinecraftApp::loadMediaArchive()
 	wstring mediapath = L"";
 
 #ifdef __PS3__
-	mediapath = L"Common\\Media\\MediaPS3.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaPS3.arc";
 #elif _WINDOWS64
-	mediapath = L"Common\\Media\\MediaWindows64.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaWindows64.arc";
 #elif __ORBIS__
-	mediapath = L"Common\\Media\\MediaOrbis.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaOrbis.arc";
 #elif _DURANGO
-	mediapath = L"Common\\Media\\MediaDurango.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaDurango.arc";
 #elif __PSVITA__
-	mediapath = L"Common\\Media\\MediaPSVita.arc";
+	mediapath = L"Assets\\Common\\Media\\MediaPSVita.arc";
 #endif
 
 	if (!mediapath.empty())
 	{
 		m_mediaArchive = new ArchiveFile( File(mediapath) );
 	}
-#if 0
-	string path = "Common\\media.arc";
-	HANDLE hFile = CreateFile(	path.c_str(),
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_FLAG_SEQUENTIAL_SCAN,
-		nullptr );
-
-	if( hFile != INVALID_HANDLE_VALUE )
-	{
-		File fileHelper(convStringToWstring(path));
-		DWORD dwFileSize = fileHelper.length();
-
-		// Initialize memory.
-		PBYTE m_fBody = new BYTE[ dwFileSize ];
-		ZeroMemory(m_fBody, dwFileSize);
-
-		DWORD m_fSize = 0;
-		BOOL hr = ReadFile(	hFile,
-			m_fBody,
-			dwFileSize,
-			&m_fSize,
-			nullptr	);
-
-		assert( m_fSize == dwFileSize );
-
-		CloseHandle( hFile );
-
-		m_mediaArchive = new ArchiveFile(m_fBody, m_fSize);
-	}
-	else
-	{
-		assert( false );
-		// AHHHHHHHHHHHH
-		m_mediaArchive = nullptr;
-	}
-#endif
 }
 
 void CMinecraftApp::loadStringTable()
@@ -10093,7 +10075,7 @@ enum ETitleUpdateTexturePacks
 };
 
 #ifdef _WINDOWS64
-wstring titleUpdateTexturePackRoot = L"Windows64\\DLC\\";
+wstring titleUpdateTexturePackRoot = L"Assets\\Win64\\DLC\\";
 #elif defined(__ORBIS__)
 wstring titleUpdateTexturePackRoot = L"/app0/orbis/CU/DLC/";
 #elif defined(__PSVITA__)

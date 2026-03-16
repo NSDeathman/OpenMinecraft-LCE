@@ -3197,6 +3197,27 @@
     <ClInclude Include="FireworksMenu.h">
       <Filter>net\minecraft\world\inventory</Filter>
     </ClInclude>
+    <ClInclude Include="ClimateLayer.h">
+      <Filter>net\minecraft\world\level\newbiome\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSourceTile.h">
+      <Filter>net\minecraft\world\level\tile</Filter>
+    </ClInclude>
+    <ClInclude Include="TameAnimalDefendGoal.h">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClInclude>
+    <ClInclude Include="WolfRetreatGoal.h">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClInclude>
+    <ClInclude Include="PrioritizeOwnerThreatGoal.h">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClInclude>
+    <ClInclude Include="WolfPackDistributedTargetGoal.h">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClInclude>
+    <ClInclude Include="BirchForestBiome.h">
+      <Filter>net\minecraft\world\level\biome</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -5625,6 +5646,27 @@
     </ClCompile>
     <ClCompile Include="EmptyMapItem.cpp">
       <Filter>net\minecraft\world\item</Filter>
+    </ClCompile>
+    <ClCompile Include="ClimateLayer.cpp">
+      <Filter>net\minecraft\world\level\newbiome\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSourceTile.cpp">
+      <Filter>net\minecraft\world\level\tile</Filter>
+    </ClCompile>
+    <ClCompile Include="TameAnimalDefendGoal.cpp">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClCompile>
+    <ClCompile Include="WolfRetreatGoal.cpp">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClCompile>
+    <ClCompile Include="PrioritizeOwnerThreatGoal.cpp">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClCompile>
+    <ClCompile Include="WolfPackDistributedTargetGoal.cpp">
+      <Filter>net\minecraft\world\entity\ai\goal\target</Filter>
+    </ClCompile>
+    <ClCompile Include="BirchForestBiome.cpp">
+      <Filter>net\minecraft\world\level\biome</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@
 class PerlinNoise_SPU//: public Synth
 {
 private:
-	static const int MAX_NOISE_LEVELS = 16;
+	static const int MAX_NOISE_LEVELS = 256;
 
 	ImprovedNoise_SPU noiseLevels[MAX_NOISE_LEVELS];
 	int levels;

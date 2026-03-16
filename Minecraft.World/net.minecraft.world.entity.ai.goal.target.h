@@ -7,3 +7,7 @@
 #include "NonTameRandomTargetGoal.h"
 #include "OwnerHurtByTargetGoal.h"
 #include "OwnerHurtTargetGoal.h"
+#include "TameAnimalDefendGoal.h"
+#include "WolfRetreatGoal.h"
+#include "WolfPackDistributedTargetGoal.h"
+#include "PrioritizeOwnerThreatGoal.h"

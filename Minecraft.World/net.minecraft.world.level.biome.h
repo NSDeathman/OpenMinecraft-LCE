@@ -3,6 +3,7 @@
 
 #include "Biome.h"
 #include "ForestBiome.h"
+#include "BirchForestBiome.h"
 #include "HellBiome.h"
 #include "RainforestBiome.h"
 #include "IceBiome.h"

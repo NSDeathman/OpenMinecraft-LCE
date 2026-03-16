@@ -662,8 +662,8 @@ void GameRuleManager::loadDefaultGameRules()
 #else // _XBOX
 
 #ifdef _WINDOWS64
-	File packedTutorialFile(L"Windows64Media\\Tutorial\\Tutorial.pck");
-	if(!packedTutorialFile.exists()) packedTutorialFile = File(L"Windows64\\Tutorial\\Tutorial.pck");
+	File packedTutorialFile(L"Assets\\Win64\\Tutorial\\Tutorial.pck");
+	if(!packedTutorialFile.exists()) packedTutorialFile = File(L"Assets\\Win64\\Tutorial\\Tutorial.pck");
 #elif defined(__ORBIS__)
 	File packedTutorialFile(L"/app0/orbis/Tutorial/Tutorial.pck");
 #elif defined(__PSVITA__)

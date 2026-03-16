@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Chunk.h"
 #include "TileRenderer.h"
 #include "TileEntityRenderDispatcher.h"
@@ -17,6 +17,10 @@
 #include "C4JSpursJob.h"
 //#define DISABLE_SPU_CODE
 
+#endif
+
+#ifdef _WINDOWS64
+#include <emmintrin.h>  // SSE2 intrinsics
 #endif
 
 int Chunk::updates = 0;
@@ -181,272 +185,380 @@ void Chunk::makeCopyForRebuild(Chunk *source)
 
 void Chunk::rebuild()
 {
-	PIXBeginNamedEvent(0,"Rebuilding chunk %d, %d, %d", x, y, z);
+	PIXBeginNamedEvent(0, "Rebuilding chunk %d, %d, %d", x, y, z);
 #if defined __PS3__ && !defined DISABLE_SPU_CODE
 	rebuild_SPU();
-  		return;
-#endif // __PS3__
+	return;
+#endif
 
-//	if (!dirty) return;
-	PIXBeginNamedEvent(0,"Rebuild section A");
+	PIXBeginNamedEvent(0, "Rebuild section A");
 
 #ifdef _LARGE_WORLDS
-	Tesselator *t = Tesselator::getInstance();
+	Tesselator* t = Tesselator::getInstance();
 #else
-	Chunk::t = Tesselator::getInstance(); // 4J - added - static initialiser being set at the wrong time
+	Chunk::t = Tesselator::getInstance();
 #endif
 
 	updates++;
 
-	int x0 = x;
-	int y0 = y;
-	int z0 = z;
-	int x1 = x + XZSIZE;
-	int y1 = y + SIZE;
-	int z1 = z + XZSIZE;
+	const int x0 = x;
+	const int y0 = y;
+	const int z0 = z;
+	const int x1 = x + XZSIZE;
+	const int y1 = y + SIZE;
+	const int z1 = z + XZSIZE;
 
 	LevelChunk::touchedSky = false;
 
-//	unordered_set<shared_ptr<TileEntity> > oldTileEntities(renderableTileEntities.begin(),renderableTileEntities.end());		// 4J removed this & next line
-//	renderableTileEntities.clear();
+	vector<shared_ptr<TileEntity>> renderableTileEntities;
+	renderableTileEntities.reserve(16);
 
-	vector<shared_ptr<TileEntity> > renderableTileEntities;	// 4J - added
+	const int r = 1;
 
-	int r = 1;
-
-	int lists = levelRenderer->getGlobalIndexForChunk(this->x,this->y,this->z,level) * 2;
+	int lists = levelRenderer->getGlobalIndexForChunk(this->x, this->y, this->z, level) * 2;
 	lists += levelRenderer->chunkLists;
 
 	PIXEndNamedEvent();
-
-	PIXBeginNamedEvent(0,"Rebuild section B");
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// 4J - optimisation begins.
-
-	// Get the data for the level chunk that this render chunk is it (level chunk is 16 x 16 x 128,
-	// render chunk is 16 x 16 x 16. We wouldn't have to actually get all of it if the data was ordered differently, but currently
-	// it is ordered by x then z then y so just getting a small range of y out of it would involve getting the whole thing into
-	// the cache anyway.
+	PIXBeginNamedEvent(0, "Rebuild section B");
 
 #ifdef _LARGE_WORLDS
-	unsigned char *tileIds = GetTileIdsStorage();
+	unsigned char* tileIds = GetTileIdsStorage();
 #else
 	static unsigned char tileIds[16 * 16 * Level::maxBuildHeight];
 #endif
 	byteArray tileArray = byteArray(tileIds, 16 * 16 * Level::maxBuildHeight);
-	level->getChunkAt(x,z)->getBlockData(tileArray);		// 4J - TODO - now our data has been re-arranged, we could just extra the vertical slice of this chunk rather than the whole thing
+	level->getChunkAt(x, z)->getBlockData(tileArray);
 
-	LevelSource *region = new Region(level, x0 - r, y0 - r, z0 - r, x1 + r, y1 + r, z1 + r, r);
-	TileRenderer *tileRenderer = new TileRenderer(region, this->x, this->y, this->z, tileIds);
+	Region       region(level, x0 - r, y0 - r, z0 - r, x1 + r, y1 + r, z1 + r, r);
+	TileRenderer tileRenderer(&region, this->x, this->y, this->z, tileIds);
 
-	// AP - added a caching system for Chunk::rebuild to take advantage of
-	// Basically we're storing of copy of the tileIDs array inside the region so that calls to Region::getTile can grab data
-	// more quickly from this array rather than calling CompressedTileStorage. On the Vita the total thread time spent in
-	// Region::getTile went from 20% to 4%.
 #ifdef __PSVITA__
-	int xc = x >> 4;
-	int zc = z >> 4;
-	((Region*)region)->setCachedTiles(tileIds, xc, zc);
+	{
+		const int xc = x >> 4;
+		const int zc = z >> 4;
+		region.setCachedTiles(tileIds, xc, zc);
+	}
 #endif
 
-	// We now go through the vertical section of this level chunk that we are interested in and try and establish
-	// (1) if it is completely empty
-	// (2) if any of the tiles can be quickly determined to not need rendering because they are in the middle of other tiles and
-	//     so can't be seen. A large amount (> 60% in tests) of tiles that call tesselateInWorld in the unoptimised version
-	//     of this function fall into this category. By far the largest category of these are tiles in solid regions of rock.
-	bool empty = true;
-	for( int yy = y0; yy < y1; yy++ )
+	// ── Скалярная isSolid: используется только в non-Windows64 путях ──────────
+	auto isSolid = [](unsigned char id)
 	{
-		for( int zz = 0; zz < 16; zz++ )
+		return id == Tile::stone_Id
+			|| id == Tile::dirt_Id
+			|| id == Tile::unbreakable_Id
+			|| id == 255;
+	};
+
+	bool empty = true;
+
+#ifdef _WINDOWS64
+	// ═══════════════════════════════════════════════════════════════════════════
+	// SSE2 Section B
+	//
+	// Ключевые факты из констант:
+	//   SIZE                         = 16   → y-диапазон чанка ровно 16 байт
+	//   COMPRESSED_CHUNK_SECTION_HEIGHT = 128 → кратно SIZE=16
+	//
+	// Вывод: render-чанки ВСЕГДА целиком лежат в одной секции — граница 128
+	// никогда не попадает внутрь чанка. Скалярный fallback мёртв.
+	// SSE2 загружает весь y-диапазон за одну инструкцию (_mm_loadu_si128).
+	// ═══════════════════════════════════════════════════════════════════════════
+	{
+		// Выбираем секцию один раз — больше никаких ветвлений на каждый тайл
+		// inUpperSection = true  → y0 >= 128, base = COMPRESSED_CHUNK_SECTION_TILES
+		// inUpperSection = false → y0 <  128, base = 0
+		const bool inUpperSection = (y0 >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT);
+		const int  sectionBase = inUpperSection
+			? Level::COMPRESSED_CHUNK_SECTION_TILES
+			: 0;
+		// y-координата внутри секции для y0 (0..111 или 0..127)
+		const int  yAdj = inUpperSection
+			? y0 - Level::COMPRESSED_CHUNK_SECTION_HEIGHT
+			: y0;
+
+		// ── SSE2 константы ───────────────────────────────────────────────────
+		const __m128i zero = _mm_setzero_si128();
+		const __m128i v_stone = _mm_set1_epi8(static_cast<char>(Tile::stone_Id));
+		const __m128i v_dirt = _mm_set1_epi8(static_cast<char>(Tile::dirt_Id));
+		const __m128i v_unbr = _mm_set1_epi8(static_cast<char>(Tile::unbreakable_Id));
+		const __m128i v_ff = _mm_set1_epi8(static_cast<char>(0xFF));
+
+		// Возвращает маску 0xFF для каждого байта где тайл "сплошной"
+		// Инлайнится в 4 × cmpeq + 3 × por — 7 инструкций
+		auto isSolid128 = [&](__m128i v) -> __m128i
 		{
-			for( int xx = 0; xx < 16; xx++ )
+			return _mm_or_si128(
+				_mm_or_si128(_mm_cmpeq_epi8(v, v_stone), _mm_cmpeq_epi8(v, v_dirt)),
+				_mm_or_si128(_mm_cmpeq_epi8(v, v_unbr), _mm_cmpeq_epi8(v, v_ff))
+			);
+		};
+
+		// ── Шаг 1. Проверка пустоты — 256 столбцов × 1 SSE2-загрузка ─────────
+		//
+		// SIZE=16 → весь y-диапазон чанка = ровно 128 бит = один XMM-регистр.
+		// Итого 256 загрузок вместо 4096 скалярных сравнений.
+		// movemask(cmpeq(v, zero)) == 0xFFFF означает "все 16 байт равны нулю".
+		for (int zz = 0; zz < 16 && empty; zz++)
+		{
+			for (int xx = 0; xx < 16 && empty; xx++)
 			{
-				// 4J Stu - tile data is ordered in 128 blocks of full width, lower 128 then upper 128
+				const unsigned char* col =
+					tileIds + sectionBase + (xx << 11) + (zz << 7) + yAdj;
+
+				const __m128i v = _mm_loadu_si128(
+					reinterpret_cast<const __m128i*>(col));
+
+				if (_mm_movemask_epi8(_mm_cmpeq_epi8(v, zero)) != 0xFFFF)
+					empty = false;
+			}
+		}
+
+		// ── Шаг 2. Маркировка скрытых тайлов — 196 внутренних столбцов ───────
+		//
+		// Для каждого внутреннего (xx, zz) столбца:
+		//   • 7 загрузок: cur + 4 горизонтальных + 2 вертикальных соседа
+		//   • isSolid128 × 7 → AND всех масок → surrounded
+		//   • Результат: OR(cur, surrounded) записывает 0xFF только скрытым
+		//
+		// edgeMask исключает крайние y-позиции где нет корректного соседа:
+		//   byte[0]  маскируется если y0==0 (дно мира)
+		//            или y0==128 (сосед y=-1 находится в другой секции)
+		//   byte[15] маскируется если y1==maxBuildHeight (потолок мира)
+		//            или y1==128 (сосед y=128 находится в другой секции)
+		if (!empty)
+		{
+			// Строим edgeMask — вычисляется один раз для всего чанка
+			alignas(16) unsigned char edgeMaskBytes[16];
+			memset(edgeMaskBytes, 0xFF, sizeof(edgeMaskBytes));
+
+			// Нижний сосед отсутствует: дно мира или начало верхней секции
+			if (y0 == Level::minBuildHeight ||
+				y0 == Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+				edgeMaskBytes[0] = 0x00;
+
+			// Верхний сосед отсутствует: потолок мира или конец нижней секции
+			if (y1 == Level::maxBuildHeight ||
+				y1 == Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+				edgeMaskBytes[15] = 0x00;
+
+			const __m128i edgeMask = _mm_load_si128(
+				reinterpret_cast<const __m128i*>(edgeMaskBytes));
+
+			for (int zz = 1; zz < 15; zz++)
+			{
+				for (int xx = 1; xx < 15; xx++)
+				{
+					unsigned char* pCur =
+						tileIds + sectionBase + (xx << 11) + (zz << 7) + yAdj;
+
+					// 7 загрузок: cur, ±x, ±z, ±y
+					// ym1/yp1 — соседние байты в непрерывном столбце (±1 байт)
+					// Корректны т.к. чанк целиком в одной секции:
+					//   - pCur-1 при yAdj>0: валидно (внутри секции)
+					//   - pCur+1 при yAdj+15<sectionHeight: валидно
+					//   - edgeMask обнулит результат на граничных позициях
+					const __m128i cur = _mm_loadu_si128(reinterpret_cast<__m128i*>(pCur));
+					const __m128i xm1 = _mm_loadu_si128(reinterpret_cast<__m128i*>(
+						tileIds + sectionBase + ((xx - 1) << 11) + (zz << 7) + yAdj));
+					const __m128i xp1 = _mm_loadu_si128(reinterpret_cast<__m128i*>(
+						tileIds + sectionBase + ((xx + 1) << 11) + (zz << 7) + yAdj));
+					const __m128i zm1 = _mm_loadu_si128(reinterpret_cast<__m128i*>(
+						tileIds + sectionBase + (xx << 11) + ((zz - 1) << 7) + yAdj));
+					const __m128i zp1 = _mm_loadu_si128(reinterpret_cast<__m128i*>(
+						tileIds + sectionBase + (xx << 11) + ((zz + 1) << 7) + yAdj));
+					const __m128i ym1 = _mm_loadu_si128(
+						reinterpret_cast<__m128i*>(pCur - 1));
+					const __m128i yp1 = _mm_loadu_si128(
+						reinterpret_cast<__m128i*>(pCur + 1));
+
+					// Все 7 направлений должны быть сплошными
+					__m128i surrounded = _mm_and_si128(
+						_mm_and_si128(isSolid128(cur), isSolid128(xm1)),
+						_mm_and_si128(isSolid128(xp1),
+							_mm_and_si128(isSolid128(zm1),
+								_mm_and_si128(isSolid128(zp1),
+									_mm_and_si128(isSolid128(ym1), isSolid128(yp1))))));
+
+					// Защита от граничных y-позиций
+					surrounded = _mm_and_si128(surrounded, edgeMask);
+
+					// OR(cur, 0xFF) = 0xFF помечен, OR(cur, 0x00) = cur без изменений
+					_mm_storeu_si128(reinterpret_cast<__m128i*>(pCur),
+						_mm_or_si128(cur, surrounded));
+				}
+			}
+		}
+	}
+
+#else // !_WINDOWS64 — скалярный путь без изменений
+	for (int yy = y0; yy < y1; yy++)
+	{
+		for (int zz = 0; zz < 16; zz++)
+		{
+			for (int xx = 0; xx < 16; xx++)
+			{
 				int indexY = yy;
 				int offset = 0;
-				if(indexY >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+				if (indexY >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
 				{
 					indexY -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
 					offset = Level::COMPRESSED_CHUNK_SECTION_TILES;
 				}
 
-				unsigned char tileId = tileIds[ offset + ( ( ( xx + 0 ) << 11 ) | ( ( zz + 0 ) << 7 ) | ( indexY + 0 ) ) ];
-				if( tileId > 0 ) empty = false;
+				unsigned char tileId = tileIds[offset + ((xx << 11) | (zz << 7) | indexY)];
+				if (tileId > 0) empty = false;
 
-				// Don't bother trying to work out neighbours for this tile if we are at the edge of the chunk - apart from the very
-				// bottom of the world where we shouldn't ever be able to see
-				if( yy == (Level::maxBuildHeight - 1) ) continue;
-				if(( xx == 0 ) || ( xx == 15 )) continue;
-				if(( zz == 0 ) || ( zz == 15 )) continue;
+				if (yy == (Level::maxBuildHeight - 1)) continue;
+				if ((xx == 0) || (xx == 15))           continue;
+				if ((zz == 0) || (zz == 15))           continue;
 
-				// Establish whether this tile and its neighbours are all made of rock, dirt, unbreakable tiles, or have already
-				// been determined to meet this criteria themselves and have a tile of 255 set.
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
-				tileId = tileIds[ offset + ( ( ( xx - 1 ) << 11 ) | ( ( zz + 0 ) << 7 ) | ( indexY + 0 )) ];
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
-				tileId = tileIds[ offset + ( ( ( xx + 1 ) << 11 ) | ( ( zz + 0 ) << 7 ) | ( indexY + 0 )) ];
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
-				tileId = tileIds[ offset + ( ( ( xx + 0 ) << 11 ) | ( ( zz - 1 ) << 7 ) | ( indexY + 0 )) ];
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
-				tileId = tileIds[ offset + ( ( ( xx + 0 ) << 11 ) | ( ( zz + 1 ) << 7 ) | ( indexY + 0 )) ];
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
-				// Treat the bottom of the world differently - we shouldn't ever be able to look up at this, so consider tiles as invisible
-				// if they are surrounded on sides other than the bottom
-				if( yy > 0 )
+				if (!isSolid(tileId))                                                            continue;
+				if (!isSolid(tileIds[offset + (((xx - 1) << 11) | (zz << 7) | indexY)])) continue;
+				if (!isSolid(tileIds[offset + (((xx + 1) << 11) | (zz << 7) | indexY)])) continue;
+				if (!isSolid(tileIds[offset + ((xx << 11) | ((zz - 1) << 7) | indexY)])) continue;
+				if (!isSolid(tileIds[offset + ((xx << 11) | ((zz + 1) << 7) | indexY)])) continue;
+
+				if (yy > 0)
 				{
-					int indexYMinusOne = yy - 1;
-					int yMinusOneOffset = 0;
-					if(indexYMinusOne >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+					int idxYm1 = yy - 1;
+					int offYm1 = 0;
+					if (idxYm1 >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
 					{
-						indexYMinusOne -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
-						yMinusOneOffset = Level::COMPRESSED_CHUNK_SECTION_TILES;
+						idxYm1 -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
+						offYm1 = Level::COMPRESSED_CHUNK_SECTION_TILES;
 					}
-					tileId = tileIds[ yMinusOneOffset + ( ( ( xx + 0 ) << 11 ) | ( ( zz + 0 ) << 7 ) | indexYMinusOne ) ];
-					if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
+					if (!isSolid(tileIds[offYm1 + ((xx << 11) | (zz << 7) | idxYm1)])) continue;
 				}
-				int indexYPlusOne = yy + 1;
-				int yPlusOneOffset = 0;
-				if(indexYPlusOne >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
-				{
-					indexYPlusOne -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
-					yPlusOneOffset = Level::COMPRESSED_CHUNK_SECTION_TILES;
-				}
-				tileId = tileIds[ yPlusOneOffset + ( ( ( xx + 0 ) << 11 ) | ( ( zz + 0 ) << 7 ) | indexYPlusOne ) ];
-				if( !( ( tileId == Tile::stone_Id ) || ( tileId == Tile::dirt_Id ) || ( tileId == Tile::unbreakable_Id ) || ( tileId == 255) ) ) continue;
 
-				// This tile is surrounded. Flag it as not requiring to be rendered by setting its id to 255.
-				tileIds[ offset + ( ( ( xx + 0 ) << 11 ) | ( ( zz + 0 ) << 7 ) | ( indexY + 0 ) ) ] = 0xff;
+				int idxYp1 = yy + 1;
+				int offYp1 = 0;
+				if (idxYp1 >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+				{
+					idxYp1 -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
+					offYp1 = Level::COMPRESSED_CHUNK_SECTION_TILES;
+				}
+				if (!isSolid(tileIds[offYp1 + ((xx << 11) | (zz << 7) | idxYp1)])) continue;
+
+				tileIds[offset + ((xx << 11) | (zz << 7) | indexY)] = 0xff;
 			}
 		}
 	}
+#endif // _WINDOWS64
+
 	PIXEndNamedEvent();
-	// Nothing at all to do for this chunk?
-	if( empty )
+
+	if (empty)
 	{
-		// 4J - added - clear any renderer data associated with this
 		for (int currentLayer = 0; currentLayer < 2; currentLayer++)
 		{
-			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
+			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level,
+				LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
 			RenderManager.CBuffClear(lists + currentLayer);
 		}
-
-		delete region;
-		delete tileRenderer;
 		return;
 	}
-	// 4J - optimisation ends
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	PIXBeginNamedEvent(0,"Rebuild section C");
-	Tesselator::Bounds bounds;	// 4J MGH - added
+	PIXBeginNamedEvent(0, "Rebuild section C");
+	Tesselator::Bounds bounds;
 	{
-		// this was the old default clip bounds for the chunk, set in Chunk::setPos.
-		float g = 6.0f;
-		bounds.boundingBox[0] = -g;
-		bounds.boundingBox[1] = -g;
-		bounds.boundingBox[2] = -g;
-		bounds.boundingBox[3] = XZSIZE+g;
-		bounds.boundingBox[4] = SIZE+g;
-		bounds.boundingBox[5] = XZSIZE+g;
+		const float g = 6.0f;
+		bounds.boundingBox[0] = -g;    bounds.boundingBox[3] = XZSIZE + g;
+		bounds.boundingBox[1] = -g;    bounds.boundingBox[4] = SIZE + g;
+		bounds.boundingBox[2] = -g;    bounds.boundingBox[5] = XZSIZE + g;
 	}
+
 	for (int currentLayer = 0; currentLayer < 2; currentLayer++)
 	{
 		bool renderNextLayer = false;
 		bool rendered = false;
-
 		bool started = false;
+		const bool collectEntities = (currentLayer == 0);
 
-		// 4J - changed loop order here to leave y as the innermost loop for better cache performance
+		auto ensureStarted = [&]()
+		{
+			if (started) return;
+			started = true;
+			MemSect(31);
+			glNewList(lists + currentLayer, GL_COMPILE);
+			MemSect(0);
+			glPushMatrix();
+			glDepthMask(true);
+			t->useCompactVertices(true);
+			translateToPos();
+			t->begin();
+			t->offset(static_cast<float>(-this->x),
+				static_cast<float>(-this->y),
+				static_cast<float>(-this->z));
+		};
+
+		auto processTile = [&](unsigned char tileId, int tx, int ty, int tz)
+		{
+			Tile* tile = Tile::tiles[tileId];
+			if (!tile) [[unlikely]] return;
+
+			if (collectEntities && tile->isEntityTile())
+			{
+				shared_ptr<TileEntity> et = region.getTileEntity(tx, ty, tz);
+				if (TileEntityRenderDispatcher::instance->hasRenderer(et))
+					renderableTileEntities.push_back(et);
+			}
+
+			const int renderLayer = tile->getRenderLayer();
+			if (renderLayer != currentLayer)
+				renderNextLayer = true;
+			else
+				rendered |= tileRenderer.tesselateInWorld(tile, tx, ty, tz);
+		};
+
 		for (int z = z0; z < z1; z++)
 		{
 			for (int x = x0; x < x1; x++)
 			{
-				for (int y = y0; y < y1; y++)
+				const int xzIndex = ((x - x0) << 11) | ((z - z0) << 7);
+
+				const int yLow1 = min(y1, Level::COMPRESSED_CHUNK_SECTION_HEIGHT);
+				for (int y = y0; y < yLow1; y++)
 				{
-					// 4J Stu - tile data is ordered in 128 blocks of full width, lower 128 then upper 128
-					int indexY = y;
-					int offset = 0;
-					if(indexY >= Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+					const unsigned char tileId = tileIds[xzIndex | y];
+					if (tileId == 0xff || tileId == 0) continue;
+					ensureStarted();
+					processTile(tileId, x, y, z);
+				}
+
+				if (y1 > Level::COMPRESSED_CHUNK_SECTION_HEIGHT)
+				{
+					const unsigned char* tilesHigh =
+						tileIds + Level::COMPRESSED_CHUNK_SECTION_TILES;
+					for (int y = Level::COMPRESSED_CHUNK_SECTION_HEIGHT; y < y1; y++)
 					{
-						indexY -= Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
-						offset = Level::COMPRESSED_CHUNK_SECTION_TILES;
-					}
-
-					// 4J - get tile from those copied into our local array in earlier optimisation
-					unsigned char tileId = tileIds[ offset + ( ( ( x - x0 ) << 11 ) | ( ( z - z0 ) << 7 ) | indexY) ];
-					// If flagged as not visible, drop out straight away
-					if( tileId == 0xff ) continue;
-//					int tileId = region->getTile(x,y,z);
-					if (tileId > 0)
-					{
-						if (!started)
-						{
-							started = true;
-
-							MemSect(31);
-							glNewList(lists + currentLayer, GL_COMPILE);
-							MemSect(0);
-							glPushMatrix();
-							glDepthMask(true);	// 4J added
-							t->useCompactVertices(true);	 // 4J added
-							translateToPos();
-							float ss = 1.000001f;
-							// 4J - have removed this scale as I don't think we should need it, and have now optimised the vertex
-							// shader so it doesn't do anything other than translate with this matrix anyway
-#if 0
-							glTranslatef(-zs / 2.0f, -ys / 2.0f, -zs / 2.0f);
-							glScalef(ss, ss, ss);
-							glTranslatef(zs / 2.0f, ys / 2.0f, zs / 2.0f);
-#endif
-							t->begin();
-							t->offset(static_cast<float>(-this->x), static_cast<float>(-this->y), static_cast<float>(-this->z));
-						}
-
-						Tile *tile = Tile::tiles[tileId];
-						if (currentLayer == 0 && tile->isEntityTile())
-						{
-							shared_ptr<TileEntity> et = region->getTileEntity(x, y, z);
-							if (TileEntityRenderDispatcher::instance->hasRenderer(et))
-							{
-								renderableTileEntities.push_back(et);
-							}
-						}
-						int renderLayer = tile->getRenderLayer();
-
-						if (renderLayer != currentLayer)
-						{
-							renderNextLayer = true;
-						}
-						else if (renderLayer == currentLayer)
-						{
-							rendered |= tileRenderer->tesselateInWorld(tile, x, y, z);
-						}
+						const int indexY = y - Level::COMPRESSED_CHUNK_SECTION_HEIGHT;
+						const unsigned char tileId = tilesHigh[xzIndex | indexY];
+						if (tileId == 0xff || tileId == 0) continue;
+						ensureStarted();
+						processTile(tileId, x, y, z);
 					}
 				}
 			}
 		}
 
 #ifdef __PSVITA__
-		if( currentLayer==0 )
-		{
-			levelRenderer->clearGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_CUT_OUT);
-		}
+		if (currentLayer == 0)
+			levelRenderer->clearGlobalChunkFlag(this->x, this->y, this->z, level,
+				LevelRenderer::CHUNK_FLAG_CUT_OUT);
 #endif
 
 		if (started)
 		{
 #ifdef __PSVITA__
-			// AP - make sure we don't attempt to render chunks without cutout geometry
-			if( t->getCutOutFound() )
-			{
-				levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_CUT_OUT);
-			}
+			if (t->getCutOutFound())
+				levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level,
+					LevelRenderer::CHUNK_FLAG_CUT_OUT);
 #endif
 			t->end();
-			bounds.addBounds(t->bounds);		// 4J MGH - added
+			bounds.addBounds(t->bounds);
 			glPopMatrix();
 			glEndList();
-			t->useCompactVertices(false);	 // 4J added
+			t->useCompactVertices(false);
 			t->offset(0, 0, 0);
 		}
 		else
@@ -455,164 +567,91 @@ void Chunk::rebuild()
 		}
 
 		if (rendered)
-		{
-			levelRenderer->clearGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
-		}
+			levelRenderer->clearGlobalChunkFlag(this->x, this->y, this->z, level,
+				LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
 		else
 		{
-			// 4J - added - clear any renderer data associated with this unused list
-			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
+			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level,
+				LevelRenderer::CHUNK_FLAG_EMPTY0, currentLayer);
 			RenderManager.CBuffClear(lists + currentLayer);
-		}
-		if((currentLayer==0)&&(!renderNextLayer))
+	}
+
+		if ((currentLayer == 0) && (!renderNextLayer))
 		{
-			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level, LevelRenderer::CHUNK_FLAG_EMPTY1);
+			levelRenderer->setGlobalChunkFlag(this->x, this->y, this->z, level,
+				LevelRenderer::CHUNK_FLAG_EMPTY1);
 			RenderManager.CBuffClear(lists + 1);
 			break;
-		}
+}
 	}
 
-	// 4J MGH - added this to take the bound from the value calc'd in the tesselator
-	if( bb )
+	if (bb)
 	{
 		bb->set(bounds.boundingBox[0], bounds.boundingBox[1], bounds.boundingBox[2],
-			   bounds.boundingBox[3], bounds.boundingBox[4], bounds.boundingBox[5]);
+			bounds.boundingBox[3], bounds.boundingBox[4], bounds.boundingBox[5]);
 	}
-
-	delete tileRenderer;
-	delete region;
 
 	PIXEndNamedEvent();
-	PIXBeginNamedEvent(0,"Rebuild section D");
-	// 4J - have rewritten the way that tile entities are stored globally to make it work more easily with split screen. Chunks are now
-	// stored globally in the levelrenderer, in a hashmap with a special key made up from the dimension and chunk position (using same index
-	// as is used for global flags)
-#if 1
-	int key = levelRenderer->getGlobalIndexForChunk(this->x,this->y,this->z,level);
-	EnterCriticalSection(globalRenderableTileEntities_cs);
-	if( renderableTileEntities.size() )
+	PIXBeginNamedEvent(0, "Rebuild section D");
+
+	const int key = levelRenderer->getGlobalIndexForChunk(this->x, this->y, this->z, level);
+
+	unordered_set<shared_ptr<TileEntity>> newEntitiesSet(
+		renderableTileEntities.begin(), renderableTileEntities.end());
+
+	vector<shared_ptr<TileEntity>> toAdd;
+	vector<shared_ptr<TileEntity>> toRemove;
+
 	{
-        auto it = globalRenderableTileEntities->find(key);
-        if( it != globalRenderableTileEntities->end() )
-		{
-			// We've got some renderable tile entities that we want associated with this chunk, and an existing list of things that used to be.
-			// We need to flag any that we don't need any more to be removed, keep those that we do, and add any new ones
-
-			// First pass - flag everything already existing to be removed
-			for(auto& it2 : it->second)
-			{
-				it2->setRenderRemoveStage(TileEntity::e_RenderRemoveStageFlaggedAtChunk);
-			}
-
-			// Now go through the current list. If these are already in the list, then unflag the remove flag. If they aren't, then add
-			for(const auto& it3 : renderableTileEntities)
-			{
-                auto it2 = find(it->second.begin(), it->second.end(), it3);
-                if( it2 == it->second.end() )
-				{
-					(*globalRenderableTileEntities)[key].push_back(it3);
-				}
-				else
-				{
-					(*it2)->setRenderRemoveStage(TileEntity::e_RenderRemoveStageKeep);
-				}
-			}
-		}
-		else
-		{
-			// Easy case - nothing already existing for this chunk. Add them all in.
-			for( size_t i = 0; i < renderableTileEntities.size(); i++ )
-			{
-				(*globalRenderableTileEntities)[key].push_back(renderableTileEntities[i]);
-			}
-		}
+		EnterCriticalSection(globalRenderableTileEntities_cs);
+		auto it = globalRenderableTileEntities->find(key);
+		if (it != globalRenderableTileEntities->end())
+			for (const auto& existing : it->second)
+				if (newEntitiesSet.count(existing) == 0)
+					toRemove.push_back(existing);
+		LeaveCriticalSection(globalRenderableTileEntities_cs);
 	}
-	else
+
 	{
-		// Another easy case - we don't want any renderable tile entities associated with this chunk. Flag all to be removed.
-        auto it = globalRenderableTileEntities->find(key);
-        if( it != globalRenderableTileEntities->end() )
+		EnterCriticalSection(globalRenderableTileEntities_cs);
+		auto it = globalRenderableTileEntities->find(key);
+		const bool hasEx = (it != globalRenderableTileEntities->end());
+		for (const auto& fresh : renderableTileEntities)
+			if (!hasEx || find(it->second.begin(), it->second.end(), fresh) == it->second.end())
+				toAdd.push_back(fresh);
+		LeaveCriticalSection(globalRenderableTileEntities_cs);
+	}
+
+	EnterCriticalSection(globalRenderableTileEntities_cs);
+	{
+		for (auto& e : toRemove)
+			e->setRenderRemoveStage(TileEntity::e_RenderRemoveStageFlaggedAtChunk);
+
+		if (!renderableTileEntities.empty())
 		{
-			for(auto& it2 : it->second)
-			{
-				it2->setRenderRemoveStage(TileEntity::e_RenderRemoveStageFlaggedAtChunk);
-			}
+			auto it = globalRenderableTileEntities->find(key);
+			if (it != globalRenderableTileEntities->end())
+				for (auto& existing : it->second)
+					if (newEntitiesSet.count(existing) > 0)
+						existing->setRenderRemoveStage(TileEntity::e_RenderRemoveStageKeep);
 		}
+
+		auto& globalList = (*globalRenderableTileEntities)[key];
+		for (auto& e : toAdd)
+			globalList.push_back(e);
 	}
 	LeaveCriticalSection(globalRenderableTileEntities_cs);
+
 	PIXEndNamedEvent();
-#else
-	// Find the removed ones:
 
-	// 4J - original code for this section:
-	/*
-		Set<TileEntity> newTileEntities = new HashSet<TileEntity>();
-		newTileEntities.addAll(renderableTileEntities);
-		newTileEntities.removeAll(oldTileEntities);
-		globalRenderableTileEntities.addAll(newTileEntities);
-
-		oldTileEntities.removeAll(renderableTileEntities);
-		globalRenderableTileEntities.removeAll(oldTileEntities);
-		*/
-
-
-    unordered_set<shared_ptr<TileEntity> > newTileEntities(renderableTileEntities.begin(),renderableTileEntities.end());
-
-	auto endIt = oldTileEntities.end();
-	for( unordered_set<shared_ptr<TileEntity> >::iterator it = oldTileEntities.begin(); it != endIt; it++ )
-	{
-		newTileEntities.erase(*it);
-	}
-
-	// 4J - newTileEntities is now renderableTileEntities with any old ones from oldTileEntitesRemoved (so just new things added)
-
-	EnterCriticalSection(globalRenderableTileEntities_cs);
-	endIt = newTileEntities.end();
-	for( unordered_set<shared_ptr<TileEntity> >::iterator it = newTileEntities.begin(); it != endIt; it++ )
-	{
-		globalRenderableTileEntities->push_back(*it);
-	}
-
-	// 4J - All these new things added to globalRenderableTileEntities
-
-	auto endItRTE = renderableTileEntities.end();
-	for( vector<shared_ptr<TileEntity> >::iterator it = renderableTileEntities.begin(); it != endItRTE; it++ )
-	{
-		oldTileEntities.erase(*it);
-	}
-	// 4J - oldTileEntities is now the removed items
-	vector<shared_ptr<TileEntity> >::iterator it = globalRenderableTileEntities->begin();
-	while(  it != globalRenderableTileEntities->end() )
-	{
-		if( oldTileEntities.find(*it) != oldTileEntities.end() )
-		{
-			it = globalRenderableTileEntities->erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	LeaveCriticalSection(globalRenderableTileEntities_cs);
-#endif
-
-	// 4J - These removed items are now also removed from globalRenderableTileEntities
-
-	if( LevelChunk::touchedSky )
-	{
+	if (LevelChunk::touchedSky)
 		levelRenderer->clearGlobalChunkFlag(x, y, z, level, LevelRenderer::CHUNK_FLAG_NOTSKYLIT);
-	}
 	else
-	{
 		levelRenderer->setGlobalChunkFlag(x, y, z, level, LevelRenderer::CHUNK_FLAG_NOTSKYLIT);
-	}
+
 	levelRenderer->setGlobalChunkFlag(x, y, z, level, LevelRenderer::CHUNK_FLAG_COMPILED);
 	PIXEndNamedEvent();
-	return;
-
 }
-
 
 #ifdef __PS3__
 ChunkRebuildData g_rebuildDataIn __attribute__((__aligned__(16)));

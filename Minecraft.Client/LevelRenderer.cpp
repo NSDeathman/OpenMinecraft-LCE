@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "LevelRenderer.h"
 #include "Textures.h"
 #include "TextureAtlas.h"
@@ -62,6 +62,12 @@
 #include "FrustumCuller.h"
 #include "..\Minecraft.World\BasicTypeContainers.h"
 #include "Common/UI/UIScene_SettingsGraphicsMenu.h"	
+
+#ifdef _WINDOWS64
+#include <emmintrin.h>  // SSE2  — _mm_loadu_ps, _mm_setzero_ps
+#include <pmmintrin.h>  // SSE3  — _mm_hadd_ps
+#include <smmintrin.h>  // SSE4.1 — _mm_dp_ps, _mm_blendv_ps
+#endif
 
 //#define DISABLE_SPU_CODE
 
@@ -589,47 +595,26 @@ void LevelRenderer::renderEntities(Vec3 *cam, Culler *culler, float a)
 	// 4J - have restructed this so that the tile entities are stored within a hashmap by chunk/dimension index. The index
 	// is calculated in the same way as the global flags.
 	EnterCriticalSection(&m_csRenderableTileEntities);
-    for (auto & it : renderableTileEntities)
-    {
-		int idx = it.first;
-		// Don't render if it isn't in the same dimension as this player
-		if( !isGlobalIndexInSameDimension(idx, level[playerIndex]) ) continue;
-
-		for( auto& it2 : it.second)
+	for (auto it = renderableTileEntities.begin(); it != renderableTileEntities.end();)
+	{
+		if (!isGlobalIndexInSameDimension(it->first, level[playerIndex]))
 		{
-			TileEntityRenderDispatcher::instance->render(it2, a);
+			++it;
+			continue;
 		}
-	}
-
-	// Now consider if any of these renderable tile entities have been flagged for removal, and if so, remove
-    for (auto it = renderableTileEntities.begin(); it != renderableTileEntities.end();)
-    {
-		int idx = it->first;
-
-        for (auto it2 = it->second.begin(); it2 != it->second.end();)
-        {
-			// If it has been flagged for removal, remove
-			if((*it2)->shouldRemoveForRender())
-			{
+		for (auto it2 = it->second.begin(); it2 != it->second.end();)
+		{
+			if ((*it2)->shouldRemoveForRender())
 				it2 = it->second.erase(it2);
-			}
 			else
 			{
-				it2++;
+				TileEntityRenderDispatcher::instance->render(*it2, a);
+				++it2;
 			}
 		}
-
-		// If there aren't any entities left for this key, then delete the key
-		if( it->second.size() == 0 )
-		{
-			it = renderableTileEntities.erase(it);
-		}
-		else
-		{
-			it++;
-		}
+		if (it->second.empty()) it = renderableTileEntities.erase(it);
+		else ++it;
 	}
-
 	LeaveCriticalSection(&m_csRenderableTileEntities);
 
 	mc->gameRenderer->turnOffLightLayer(a);		// 4J - brought forward from 1.8.2
@@ -2302,13 +2287,18 @@ void LevelRenderer::renderHitOutline(shared_ptr<Player> player, HitResult *h, in
 		float ss = 0.002f;
 		int tileId = level[iPad]->getTile(h->x, h->y, h->z);
 
-		if (tileId > 0)
+		if (tileId > 0 && Tile::tiles[tileId] != nullptr)
 		{
 			Tile::tiles[tileId]->updateShape(level[iPad], h->x, h->y, h->z);
-			double xo = player->xOld + (player->x - player->xOld) * a;
-			double yo = player->yOld + (player->y - player->yOld) * a;
-			double zo = player->zOld + (player->z - player->zOld) * a;
-			render(Tile::tiles[tileId]->getTileAABB(level[iPad], h->x, h->y, h->z)->grow(ss, ss, ss)->cloneMove(-xo, -yo, -zo));
+
+			AABB* aabb = Tile::tiles[tileId]->getTileAABB(level[iPad], h->x, h->y, h->z);
+			if (aabb != nullptr)
+			{
+				double xo = player->xOld + (player->x - player->xOld) * a;
+				double yo = player->yOld + (player->y - player->yOld) * a;
+				double zo = player->zOld + (player->z - player->zOld) * a;
+				render(aabb->grow(ss, ss, ss)->cloneMove(-xo, -yo, -zo));
+			}
 		}
 		glDepthMask(true);
 		glEnable(GL_TEXTURE_2D);
@@ -2444,6 +2434,60 @@ void LevelRenderer::setTilesDirty(int x0, int y0, int z0, int x1, int y1, int z1
 	setDirty(x0 - 1, y0 - 1, z0 - 1, x1 + 1, y1 + 1, z1 + 1, level);
 }
 
+#ifdef _WINDOWS64
+// ── SSE4.1 версия frustum-теста ─────────────────────────────────────────────
+//
+// Алгоритм «p-vertex»:
+//   Для каждой из 6 плоскостей frustum выбирается угол AABB («p-вершина»),
+//   который даёт максимальный dot-product с нормалью плоскости.
+//   Если даже этот угол находится за плоскостью — AABB полностью снаружи.
+//
+// SSE4.1 улучшения по сравнению с SSE2:
+//   _mm_blendv_ps  — выбор p-вершины без AND/ANDNOT/OR (1 инструкция вместо 3)
+//   _mm_dp_ps      — dot-product за 1 инструкцию вместо mul+hadd+hadd
+// ────────────────────────────────────────────────────────────────────────────
+inline bool clip_SSE41(const float* __restrict bb, const float* __restrict frustum)
+{
+	// bb = [x0, y0, z0, x1, y1, z1]
+	// w=1.0f чтобы plane.w*pVertex.w = plane.w (свободный член уравнения плоскости)
+	const __m128 bbMin = _mm_set_ps(1.0f, bb[2], bb[1], bb[0]); // [x0, y0, z0, 1]
+	const __m128 bbMax = _mm_set_ps(1.0f, bb[5], bb[4], bb[3]); // [x1, y1, z1, 1]
+	const __m128 zero = _mm_setzero_ps();
+
+	for (int i = 0; i < 6; i++, frustum += 4)
+	{
+		// plane = [nx, ny, nz, d]  —  уравнение плоскости: nx*x + ny*y + nz*z + d
+		const __m128 plane = _mm_loadu_ps(frustum);
+
+		// ── Шаг 1. Выбор p-вершины через SSE4.1 blendv ──────────────────────
+		// blendv выбирает bbMax там где plane >= 0, bbMin — где plane < 0.
+		// Это эквивалентно: pVertex[i] = (plane[i] >= 0) ? bbMax[i] : bbMin[i]
+		// Было (SSE2): 3 инструкции AND + ANDNOT + OR
+		// Стало (SSE4.1): 1 инструкция blendv
+		const __m128 planeMask = _mm_cmpge_ps(plane, zero);
+		const __m128 pVertex = _mm_blendv_ps(bbMin, bbMax, planeMask);
+
+		// ── Шаг 2. Dot-product через SSE4.1 dp_ps ───────────────────────────
+		// Маска 0xFF = 1111_1111b:
+		//   старшие 4 бита (1111) — перемножаем все 4 компоненты (x, y, z, w)
+		//   младшие 4 бита (1111) — записываем результат во все 4 слота
+		// Результат: plane.x*pVertex.x + plane.y*pVertex.y +
+		//            plane.z*pVertex.z + plane.w*1.0f
+		//          = nx*x + ny*y + nz*z + d
+		// Было (SSE3): mul + hadd + hadd — 3 инструкции
+		// Стало (SSE4.1): 1 инструкция dp_ps
+		const __m128 dot = _mm_dp_ps(plane, pVertex, 0xFF);
+
+		// ── Шаг 3. Тест: p-вершина за плоскостью? ───────────────────────────
+		// _mm_comile_ss: scalar compare lower element, returns int
+		// Возвращает 1 если dot[0] <= 0.0f — AABB полностью за этой плоскостью
+		if (_mm_comile_ss(dot, zero))
+			return false;
+	}
+	return true;
+}
+#endif
+
 bool inline clip(float *bb, float *frustum)
 {
 	for (int i = 0; i < 6; ++i, frustum += 4)
@@ -2573,7 +2617,11 @@ void LevelRenderer::cull(Culler *culler, float a)
 		unsigned char flags = pClipChunk->globalIdx == -1 ? 0 : globalChunkFlags[ pClipChunk->globalIdx ];
 
 		// Always perform frustum cull test
+#ifdef _WINDOWS64
+		bool clipres = clip_SSE41(pClipChunk->aabb, fdraw);
+#else
 		bool clipres = clip(pClipChunk->aabb, fdraw);
+#endif
 
 		if ( (flags & CHUNK_FLAG_COMPILED ) && ( ( flags & CHUNK_FLAG_EMPTYBOTH ) != CHUNK_FLAG_EMPTYBOTH ) )
 		{

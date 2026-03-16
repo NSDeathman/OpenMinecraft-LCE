@@ -3793,6 +3793,9 @@
     <ClInclude Include="..\include\lce_filesystem\lce_filesystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Audio\MusicTrackManager.h">
+      <Filter>Common\Source Files\Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -5948,6 +5951,9 @@
     </ClCompile>
     <ClCompile Include="..\include\lce_filesystem\lce_filesystem.cpp">
       <Filter>include\lce_filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Audio\MusicTrackManager.cpp">
+      <Filter>Common\Source Files\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

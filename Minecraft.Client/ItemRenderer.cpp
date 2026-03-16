@@ -528,7 +528,7 @@ void ItemRenderer::renderAndDecorateItem(Font *font, Textures *textures, const s
 		glEnable(GL_LIGHTING);
 		glDepthFunc(GL_LEQUAL);
 
-		if( isConstantBlended ) glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+		if( isConstantBlended ) glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);;
 	}
 }
 

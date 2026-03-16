@@ -18,7 +18,7 @@ class ResourceLocation;
 typedef enum _TEXTURE_NAME
 {
 	TN__BLUR__MISC_PUMPKINBLUR,
-//	TN__BLUR__MISC_VIGNETTE,		// Not currently used
+	TN__BLUR__MISC_VIGNETTE,		// Not currently used
 	TN__CLAMP__MISC_SHADOW,
 //	TN_ACHIEVEMENT_BG,				// Not currently used
 	TN_ART_KZ,

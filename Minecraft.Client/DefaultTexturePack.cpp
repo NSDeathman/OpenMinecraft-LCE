@@ -86,18 +86,18 @@ InputStream *DefaultTexturePack::getResourceImplementation(const wstring &name)/
 
 	wstring wstr (pchUsrDir, pchUsrDir+strlen(pchUsrDir));
 
-	wDrive = wstr + L"\\Common\\res\\TitleUpdate\\res";
+	wDrive = wstr + L"\\Assets\\Common\\res\\TitleUpdate\\res";
 #elif __PSVITA__
 
 	/*
 	char *pchUsrDir=getUsrDirPath();
 	wstring wstr (pchUsrDir, pchUsrDir+strlen(pchUsrDir));
 	
-	wDrive = wstr + L"Common\\res\\TitleUpdate\\res";
+	wDrive = wstr + L"Assets\\Common\\res\\TitleUpdate\\res";
 	*/
-	wDrive = L"Common\\res\\TitleUpdate\\res";
+	wDrive = L"Assets\\Common\\res\\TitleUpdate\\res";
 #else
-	wDrive = L"Common\\res\\TitleUpdate\\res";
+	wDrive = L"Assets\\Common\\res\\TitleUpdate\\res";
 
 #endif
 	InputStream *resource = InputStream::getResourceAsStream(wDrive + name);

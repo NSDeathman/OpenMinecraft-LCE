@@ -27,7 +27,7 @@ InputStream *FolderTexturePack::getResourceImplementation(const wstring &name) /
 #ifdef _XBOX
 	wDrive=L"GAME:\\DummyTexturePack\\res";
 #else
-	wDrive = L"Common\\DummyTexturePack\\res";
+	wDrive = L"Assets\\Common\\DummyTexturePack\\res";
 #endif
 	InputStream *resource = InputStream::getResourceAsStream(wDrive + name);
 	//InputStream *stream = DefaultTexturePack::class->getResourceAsStream(name);
@@ -64,7 +64,7 @@ wstring FolderTexturePack::getPath(bool bTitleUpdateTexture /*= false*/,const ch
 #ifdef _XBOX
 		wDrive=L"GAME:\\" + file->getPath() + L"\\";
 #else
-		wDrive=L"Common\\" + file->getPath() + L"\\";
+		wDrive=L"Assets\\Common\\" + file->getPath() + L"\\";
 #endif
 	return wDrive;
 }

@@ -1016,9 +1016,9 @@ void UIScene_LoadOrJoinMenu::GetSaveInfo()
 
         uiSaveC = 0;
 #ifdef _XBOX
-        File savesDir(L"GAME:\\Saves");
+        File savesDir(L"GAME:\\GameHDD\\");
 #else
-        File savesDir(L"Saves");
+        File savesDir(L"Windows64\\GameHDD\\");
 #endif
         if( savesDir.exists() )
         {

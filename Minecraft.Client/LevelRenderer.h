@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "..\Minecraft.World\LevelListener.h"
 #include "..\Minecraft.World\Definitions.h"
 #include "OffsettedRenderList.h"
@@ -70,6 +70,7 @@ private:
 	void createCloudMesh();	// 4J added
 public:
 	void setLevel(int playerIndex, MultiPlayerLevel *level);
+	void rebuildGlobalIdxMap(int playerIndex);
 	void allChanged();
 	void allChanged(int playerIndex);
 
@@ -275,7 +276,7 @@ public:
 	static const int	FORCE_DIRTY_CHUNK_CHECK_PERIOD_MS = 125; // decreased from 250 to 125 - updated by detectiveren
 
 #ifdef _LARGE_WORLDS
-	static const int MAX_CONCURRENT_CHUNK_REBUILDS = 8; // increased from 4 to 8 - updated by detectiveren
+	static const int MAX_CONCURRENT_CHUNK_REBUILDS = 3; // increased from 4 to 8 - updated by detectiveren
 	static const int MAX_CHUNK_REBUILD_THREADS = MAX_CONCURRENT_CHUNK_REBUILDS - 1;
 	static Chunk permaChunk[MAX_CONCURRENT_CHUNK_REBUILDS];
 	static C4JThread *rebuildThreads[MAX_CHUNK_REBUILD_THREADS];

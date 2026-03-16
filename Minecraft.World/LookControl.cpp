@@ -15,6 +15,9 @@ LookControl::LookControl(Mob *mob)
 
 void LookControl::setLookAt(shared_ptr<Entity> target, float yMax, float xMax)
 {
+	if (target == nullptr)
+		return;
+
 	wantedX = target->x;
 	if ( target->instanceof(eTYPE_LIVINGENTITY) ) wantedY = target->y + dynamic_pointer_cast<LivingEntity>(target)->getHeadHeight();
 	else wantedY = (target->bb->y0 + target->bb->y1) / 2;

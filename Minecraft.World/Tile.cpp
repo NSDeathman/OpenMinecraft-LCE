@@ -220,6 +220,8 @@ Tile *Tile::woolCarpet = nullptr;
 Tile *Tile::clayHardened = nullptr;
 Tile *Tile::coalBlock = nullptr;
 
+Tile *Tile::lightSourceBlock = nullptr;
+
 DWORD Tile::tlsIdxShape = TlsAlloc();
 
 Tile::ThreadStorage::ThreadStorage()
@@ -312,7 +314,7 @@ void Tile::staticCtor()
 	Tile::bookshelf = (new BookshelfTile(47))													->setBaseItemTypeAndMaterial(Item::eBaseItemType_paper, Item::eMaterial_bookshelf)->setDestroyTime(1.5f)->setSoundType(Tile::SOUND_WOOD)->setIconName(L"bookshelf")->setDescriptionId(IDS_TILE_BOOKSHELF)->setUseDescriptionId(IDS_DESC_BOOKSHELF);
 	Tile::mossyCobblestone = (new Tile(48, Material::stone))									->setDestroyTime(2.0f)->setExplodeable(10)->setSoundType(Tile::SOUND_STONE)->setIconName(L"cobblestone_mossy")->setDescriptionId(IDS_TILE_STONE_MOSS)->setUseDescriptionId(IDS_DESC_MOSS_STONE);
 	Tile::obsidian = (new ObsidianTile(49))														->setDestroyTime(50.0f)->setExplodeable(2000)->setSoundType(Tile::SOUND_STONE)->setIconName(L"obsidian")->setDescriptionId(IDS_TILE_OBSIDIAN)->setUseDescriptionId(IDS_DESC_OBSIDIAN);
-	Tile::torch = (new TorchTile(50))															->setBaseItemTypeAndMaterial(Item::eBaseItemType_torch,	Item::eMaterial_wood)->setDestroyTime(0.0f)->setLightEmission(15 / 16.0f)->setSoundType(Tile::SOUND_WOOD)->setIconName(L"torch_on")->setDescriptionId(IDS_TILE_TORCH)->setUseDescriptionId(IDS_DESC_TORCH)->disableMipmap();
+	Tile::torch = (new TorchTile(torch_Id))															->setBaseItemTypeAndMaterial(Item::eBaseItemType_torch,	Item::eMaterial_wood)->setDestroyTime(0.0f)->setLightEmission(15 / 16.0f)->setSoundType(Tile::SOUND_WOOD)->setIconName(L"torch_on")->setDescriptionId(IDS_TILE_TORCH)->setUseDescriptionId(IDS_DESC_TORCH)->disableMipmap();
 
 	Tile::fire = static_cast<FireTile *>(((new FireTile(51))->setDestroyTime(0.0f)->setLightEmission(1.0f)->setSoundType(Tile::SOUND_WOOD))->setIconName(L"fire")->setDescriptionId(IDS_TILE_FIRE)->setNotCollectStatistics()->setUseDescriptionId(-1));
 	Tile::mobSpawner = (new MobSpawnerTile(52))								->setDestroyTime(5.0f)->setSoundType(Tile::SOUND_METAL)->setIconName(L"mob_spawner")->setDescriptionId(IDS_TILE_MOB_SPAWNER)->setNotCollectStatistics()->setUseDescriptionId(IDS_DESC_MOB_SPAWNER);
@@ -442,6 +444,8 @@ void Tile::staticCtor()
 	Tile::clayHardened = (new Tile(172, Material::stone))			->setBaseItemTypeAndMaterial(Item::eBaseItemType_clay,	Item::eMaterial_clay)->setDestroyTime(1.25f)->setExplodeable(7)->setSoundType(SOUND_STONE)->setIconName(L"hardened_clay")->setDescriptionId(IDS_TILE_HARDENED_CLAY)->setUseDescriptionId(IDS_DESC_HARDENED_CLAY);
 	Tile::coalBlock = (new Tile(173, Material::stone))				->setBaseItemTypeAndMaterial(Item::eBaseItemType_block,	Item::eMaterial_coal)->setDestroyTime(5.0f)->setExplodeable(10)->setSoundType(SOUND_STONE)->setIconName(L"coal_block")->setDescriptionId(IDS_TILE_COAL)->setUseDescriptionId(IDS_DESC_COAL_BLOCK);
 
+	Tile::lightSourceBlock = (new LightSourceTile(lightSourceBlock_Id))->setBaseItemTypeAndMaterial(Item::eBaseItemType_torch, Item::eMaterial_wood)->setDestroyTime(0.0f)->setLightEmission(15 / 16.0f)->setSoundType(Tile::SOUND_WOOD)->setIconName(L"torch_on")->setDescriptionId(IDS_TILE_TORCH)->setUseDescriptionId(IDS_DESC_TORCH)->disableMipmap();
+	
 
 	// Special cases for certain items since they can have different icons
 	Item::items[wool_Id]				= ( new WoolTileItem(Tile::wool_Id- 256) )->setIconName(L"cloth")->setDescriptionId(IDS_TILE_CLOTH)->setUseDescriptionId(IDS_DESC_WOOL);
@@ -814,8 +818,13 @@ Icon *Tile::getTexture(int face)
 AABB *Tile::getTileAABB(Level *level, int x, int y, int z)
 {
 	ThreadStorage *tls = static_cast<ThreadStorage *>(TlsGetValue(Tile::tlsIdxShape));
+	if (tls == nullptr)
+		return AABB::newTemp(x, y, z, x, y, z);
+
 	// 4J Stu - Added this so that the TLS shape is correct for this tile
-	if(tls->tileId != this->id) updateDefaultShape();
+	if(tls->tileId != this->id) 
+		updateDefaultShape();
+
 	return AABB::newTemp(x + tls->xx0, y + tls->yy0, z + tls->zz0, x + tls->xx1, y + tls->yy1, z + tls->zz1);
 }
 
@@ -828,8 +837,14 @@ void Tile::addAABBs(Level *level, int x, int y, int z, AABB *box, AABBList *boxe
 AABB *Tile::getAABB(Level *level, int x, int y, int z)
 {
 	ThreadStorage *tls = static_cast<ThreadStorage *>(TlsGetValue(Tile::tlsIdxShape));
+
+	if (tls == nullptr)
+		return AABB::newTemp(x, y, z, x, y, z);
+
 	// 4J Stu - Added this so that the TLS shape is correct for this tile
-	if(tls->tileId != this->id) updateDefaultShape();
+	if(tls->tileId != this->id) 
+		updateDefaultShape();
+
 	return AABB::newTemp(x + tls->xx0, y + tls->yy0, z + tls->zz0, x + tls->xx1, y + tls->yy1, z + tls->zz1);
 }
 

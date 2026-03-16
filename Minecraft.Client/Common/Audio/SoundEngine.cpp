@@ -64,8 +64,8 @@ void SoundEngine::playMusicTick() {};
 #else
 
 #ifdef _WINDOWS64
-char SoundEngine::m_szSoundPath[]={"Windows64Media\\Sound\\"};
-char SoundEngine::m_szMusicPath[]={"music\\"};
+char SoundEngine::m_szSoundPath[]={"Assets\\Win64\\Sound\\"};
+char SoundEngine::m_szMusicPath[]={"Assets\\Win64\\Sound\\Minecraft\\music\\"};
 char SoundEngine::m_szRedistName[]={"redist64"};
 #elif defined _DURANGO
 char SoundEngine::m_szSoundPath[]={"Sound\\"};
@@ -259,9 +259,9 @@ void SoundEngine::updateMiniAudio()
             continue;
         }
 
-        float finalVolume = s->info.volume * m_MasterEffectsVolume;
-        if (finalVolume > 1.0f)
-            finalVolume = 1.0f;
+        float finalVolume = s->info.volume * m_MasterEffectsVolume * SFX_VOLUME_MULTIPLIER;
+        if (finalVolume > SFX_MAX_GAIN)
+            finalVolume = SFX_MAX_GAIN;
 
         ma_sound_set_volume(&s->sound, finalVolume);
         ma_sound_set_pitch(&s->sound, s->info.pitch);
@@ -477,7 +477,7 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
         iSound, SoundName, szSoundName, x, y, z, volume, pitch);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/%s", (char*)szSoundName);
+    sprintf_s(basePath, "Assets/Win64/Sound/%s", (char*)szSoundName);
 
     char finalPath[256];
     sprintf_s(finalPath, "%s.wav", basePath);
@@ -569,10 +569,13 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
     }
 
     ma_sound_set_spatialization_enabled(&s->sound, MA_TRUE);
+    ma_sound_set_min_distance(&s->sound, SFX_3D_MIN_DISTANCE);
+    ma_sound_set_max_distance(&s->sound, SFX_3D_MAX_DISTANCE);
+    ma_sound_set_rolloff(&s->sound, SFX_3D_ROLLOFF);
 
-    float finalVolume = volume * m_MasterEffectsVolume;
-    if (finalVolume > 1.0f)
-        finalVolume = 1.0f;
+    float finalVolume = volume * m_MasterEffectsVolume * SFX_VOLUME_MULTIPLIER;
+    if (finalVolume > SFX_MAX_GAIN)
+        finalVolume = SFX_MAX_GAIN;
 
     ma_sound_set_volume(&s->sound, finalVolume);
     ma_sound_set_pitch(&s->sound, pitch);
@@ -608,7 +611,7 @@ void SoundEngine::playUI(int iSound, float volume, float pitch)
     strcat((char*)szSoundName, SoundName);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
+    sprintf_s(basePath, "Assets/Win64/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
 
     char finalPath[256];
     sprintf_s(finalPath, "%s.wav", basePath);

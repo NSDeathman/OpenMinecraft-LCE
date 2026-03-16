@@ -235,6 +235,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccProvider>SAK</SccProvider>
     <ApplicationEnvironment>title</ApplicationEnvironment>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Xbox 360'" Label="Configuration">
@@ -306,7 +307,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'" Label="Configuration">
@@ -705,8 +706,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64headers;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -736,8 +737,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64headers;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -757,8 +758,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ContentPackage_Vita|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64headers;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -841,8 +842,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ContentPackage|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64header;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -862,8 +863,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CONTENTPACKAGE_SYMBOLS|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64header;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -883,8 +884,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseForArt|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64header;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Platform)_$(Configuration)\</OutDir>
-    <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -904,8 +905,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ContentPackage_NO_TU|x64'">
     <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     <IncludePath>$(ProjectDir)\x64header;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\Libraries\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
@@ -1380,6 +1381,10 @@
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/FS /Ob3 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -2444,6 +2449,7 @@
     <ClInclude Include="BiomeOverrideLayer.h" />
     <ClInclude Include="BiomeSource.h" />
     <ClInclude Include="BirchFeature.h" />
+    <ClInclude Include="BirchForestBiome.h" />
     <ClInclude Include="Blaze.h" />
     <ClInclude Include="BlockDestructionProgress.h" />
     <ClInclude Include="BlockGenMethods.h" />
@@ -2459,6 +2465,7 @@
     <ClInclude Include="BookshelfTile.h" />
     <ClInclude Include="BossMob.h" />
     <ClInclude Include="Calendar.h" />
+    <ClInclude Include="ClimateLayer.h" />
     <ClInclude Include="ColoredTile.h" />
     <ClInclude Include="CommandBlock.h" />
     <ClInclude Include="CommandBlockEntity.h" />
@@ -2466,6 +2473,8 @@
     <ClInclude Include="ComparatorTileEntity.h" />
     <ClInclude Include="DaylightDetectorTile.h" />
     <ClInclude Include="DaylightDetectorTileEntity.h" />
+    <ClInclude Include="PrioritizeOwnerThreatGoal.h" />
+    <ClInclude Include="TameAnimalDefendGoal.h" />
     <ClInclude Include="DropperTile.h" />
     <ClInclude Include="DropperTileEntity.h" />
     <ClInclude Include="DummyCriteria.h" />
@@ -2489,6 +2498,7 @@
     <ClInclude Include="HtmlString.h" />
     <ClInclude Include="LargeFireball.h" />
     <ClInclude Include="LeashItem.h" />
+    <ClInclude Include="LightSourceTile.h" />
     <ClInclude Include="MapCloningRecipe.h" />
     <ClInclude Include="MapExtendingRecipe.h" />
     <ClInclude Include="MinecartChest.h" />
@@ -2844,6 +2854,8 @@
     <ClInclude Include="Witch.h" />
     <ClInclude Include="WitherBoss.h" />
     <ClInclude Include="WitherSkull.h" />
+    <ClInclude Include="WolfPackDistributedTargetGoal.h" />
+    <ClInclude Include="WolfRetreatGoal.h" />
     <ClInclude Include="WoodButtonTile.h" />
     <ClInclude Include="WoodSlabTile.h" />
     <ClInclude Include="WoodTile.h" />
@@ -3516,6 +3528,7 @@
     <ClCompile Include="BiomeOverrideLayer.cpp" />
     <ClCompile Include="BiomeSource.cpp" />
     <ClCompile Include="BirchFeature.cpp" />
+    <ClCompile Include="BirchForestBiome.cpp" />
     <ClCompile Include="Blaze.cpp" />
     <ClCompile Include="BlockDestructionProgress.cpp" />
     <ClCompile Include="BlockGenMethods.cpp" />
@@ -3529,6 +3542,7 @@
     <ClCompile Include="BookItem.cpp" />
     <ClCompile Include="BookshelfTile.cpp" />
     <ClCompile Include="Calendar.cpp" />
+    <ClCompile Include="ClimateLayer.cpp" />
     <ClCompile Include="ColoredTile.cpp" />
     <ClCompile Include="CommandBlock.cpp" />
     <ClCompile Include="CommandBlockEntity.cpp" />
@@ -3536,6 +3550,8 @@
     <ClCompile Include="ComparatorTileEntity.cpp" />
     <ClCompile Include="DaylightDetectorTile.cpp" />
     <ClCompile Include="DaylightDetectorTileEntity.cpp" />
+    <ClCompile Include="PrioritizeOwnerThreatGoal.cpp" />
+    <ClCompile Include="TameAnimalDefendGoal.cpp" />
     <ClCompile Include="DropperTile.cpp" />
     <ClCompile Include="DropperTileEntity.cpp" />
     <ClCompile Include="DummyCriteria.cpp" />
@@ -3557,6 +3573,7 @@
     <ClCompile Include="HtmlString.cpp" />
     <ClCompile Include="LargeFireball.cpp" />
     <ClCompile Include="LeashItem.cpp" />
+    <ClCompile Include="LightSourceTile.cpp" />
     <ClCompile Include="MinecartChest.cpp" />
     <ClCompile Include="MinecartContainer.cpp" />
     <ClCompile Include="MinecartFurnace.cpp" />
@@ -3644,6 +3661,8 @@
     <ClCompile Include="StructureFeatureSavedData.cpp" />
     <ClCompile Include="Team.cpp" />
     <ClCompile Include="WeightedPressurePlateTile.cpp" />
+    <ClCompile Include="WolfPackDistributedTargetGoal.cpp" />
+    <ClCompile Include="WolfRetreatGoal.cpp" />
     <ClCompile Include="WoodButtonTile.cpp" />
     <ClCompile Include="WoolTileItem.cpp" />
     <ClCompile Include="CoalItem.cpp" />
