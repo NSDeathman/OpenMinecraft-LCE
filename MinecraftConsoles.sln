@@ -14,6 +14,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render_PC", "Minecraft.Clie
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Minecraft.Server", "Minecraft.Server\Minecraft.Server.vcxproj", "{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4J Libs", "4J Libs", "{C8A354D5-2F99-4D3D-A20D-76BB3D083D90}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Storage", "Minecraft.Client\Windows64\4JLibs\inc\Storage\Storage.vcxproj", "{6DED1618-2ADA-4D72-A11F-425E83C7042E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -23,6 +27,7 @@ Global
 		Debug|PSVita = Debug|PSVita
 		Debug|Windows64 = Debug|Windows64
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Debug|Xbox 360 = Debug|Xbox 360
 		Release|ARM64EC = Release|ARM64EC
 		Release|Durango = Release|Durango
@@ -31,6 +36,7 @@ Global
 		Release|PSVita = Release|PSVita
 		Release|Windows64 = Release|Windows64
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 		Release|Xbox 360 = Release|Xbox 360
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -49,6 +55,8 @@ Global
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|Windows64.Build.0 = Debug|x64
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|x64.ActiveCfg = Debug|x64
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|x64.Build.0 = Debug|x64
+		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|x86.ActiveCfg = Debug|Win32
+		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|x86.Build.0 = Debug|Win32
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|Xbox 360.Build.0 = Debug|Xbox 360
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Debug|Xbox 360.Deploy.0 = Debug|Xbox 360
@@ -66,6 +74,8 @@ Global
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|Windows64.Build.0 = Release|x64
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|x64.ActiveCfg = Release|x64
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|x64.Build.0 = Release|x64
+		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|x86.ActiveCfg = Release|Win32
+		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|x86.Build.0 = Release|Win32
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
 		{F046C3CE-9749-4823-B32B-D9CC10B1A2C8}.Release|Xbox 360.Build.0 = Release|Xbox 360
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
@@ -84,6 +94,8 @@ Global
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|Windows64.Build.0 = Debug|x64
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|x64.ActiveCfg = Debug|x64
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|x64.Build.0 = Debug|x64
+		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|x86.ActiveCfg = Debug|Win32
+		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|x86.Build.0 = Debug|Win32
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|Xbox 360.Build.0 = Debug|Xbox 360
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Debug|Xbox 360.Deploy.0 = Debug|Xbox 360
@@ -102,6 +114,8 @@ Global
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|Windows64.Build.0 = Release|x64
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|x64.ActiveCfg = Release|x64
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|x64.Build.0 = Release|x64
+		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|x86.ActiveCfg = Release|Win32
+		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|x86.Build.0 = Release|Win32
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
 		{1B9A8C38-DD48-448C-AA24-E1A35E0089A3}.Release|Xbox 360.Build.0 = Release|Xbox 360
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|ARM64EC.ActiveCfg = Debug|Win32
@@ -113,6 +127,8 @@ Global
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|Windows64.Build.0 = Debug|x64
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|x64.ActiveCfg = Debug|x64
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|x64.Build.0 = Debug|x64
+		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|x86.ActiveCfg = Debug|Win32
+		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|x86.Build.0 = Debug|Win32
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Debug|Xbox 360.ActiveCfg = Debug|Win32
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|ARM64EC.ActiveCfg = Release|Win32
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|Durango.ActiveCfg = Release|Win32
@@ -123,6 +139,8 @@ Global
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|Windows64.Build.0 = Release|x64
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|x64.ActiveCfg = Release|x64
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|x64.Build.0 = Release|x64
+		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|x86.ActiveCfg = Release|Win32
+		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|x86.Build.0 = Release|Win32
 		{CC99EB47-7231-4067-8717-C6BF4ABDE338}.Release|Xbox 360.ActiveCfg = Release|Win32
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|ARM64EC.ActiveCfg = Debug|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|Durango.ActiveCfg = Debug|x64
@@ -132,6 +150,7 @@ Global
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|Windows64.ActiveCfg = Debug|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|x64.ActiveCfg = Debug|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|x64.Build.0 = Debug|x64
+		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|x86.ActiveCfg = Debug|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Debug|Xbox 360.ActiveCfg = Debug|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|ARM64EC.ActiveCfg = Release|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|Durango.ActiveCfg = Release|x64
@@ -141,10 +160,37 @@ Global
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|Windows64.ActiveCfg = Release|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|x64.ActiveCfg = Release|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|x64.Build.0 = Release|x64
+		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|x86.ActiveCfg = Release|x64
 		{7CB40BFC-C8E4-4293-A22E-D2041348D5AF}.Release|Xbox 360.ActiveCfg = Release|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|ARM64EC.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|Durango.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|ORBIS.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|PS3.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|PSVita.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|Windows64.ActiveCfg = Debug|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|x64.ActiveCfg = Debug|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|x64.Build.0 = Debug|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|x86.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|x86.Build.0 = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Debug|Xbox 360.ActiveCfg = Debug|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|ARM64EC.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|Durango.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|ORBIS.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|PS3.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|PSVita.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|Windows64.ActiveCfg = Release|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|x64.ActiveCfg = Release|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|x64.Build.0 = Release|x64
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|x86.ActiveCfg = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|x86.Build.0 = Release|Win32
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E}.Release|Xbox 360.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CC99EB47-7231-4067-8717-C6BF4ABDE338} = {C8A354D5-2F99-4D3D-A20D-76BB3D083D90}
+		{6DED1618-2ADA-4D72-A11F-425E83C7042E} = {C8A354D5-2F99-4D3D-A20D-76BB3D083D90}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD5AC2E4-C1D3-45C3-AC34-06D43B233179}

@@ -175,7 +175,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="4J_Render.h" />
+    <ClInclude Include="..\4J_Render.h" />
     <ClInclude Include="CompiledShaders.h" />
     <ClInclude Include="libpng\png.h" />
     <ClInclude Include="libpng\pngconf.h" />

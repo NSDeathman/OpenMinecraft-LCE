@@ -11,16 +11,19 @@
 
 #define MULTITHREAD_ENABLE
 
-typedef unsigned char byte;
-
+#ifndef XUSER_INDEX_ANY
 const int XUSER_INDEX_ANY = 255;
+#endif
+
 const int XUSER_INDEX_FOCUS = 254;
 
 #ifdef __PSVITA__
 const int XUSER_MAX_COUNT = 1;
 const int MINECRAFT_NET_MAX_PLAYERS = 4;
 #else
+#ifndef XUSER_MAX_COUNT
 const int XUSER_MAX_COUNT = 4;
+#endif
 const int MINECRAFT_NET_MAX_PLAYERS = 256;
 #endif
 
