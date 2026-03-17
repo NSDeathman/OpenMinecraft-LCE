@@ -18,7 +18,7 @@ Biome* Biome::desert = nullptr;
 Biome* Biome::extremeHills = nullptr;
 Biome* Biome::forest = nullptr;
 Biome* Biome::birchForest = nullptr;
-Biome* Biome::rainForest = nullptr;
+Biome* Biome::oakForest = nullptr;
 Biome* Biome::taiga = nullptr;
 Biome* Biome::taigaSnowed = nullptr;
 Biome* Biome::swampland = nullptr;
@@ -114,7 +114,7 @@ void Biome::staticCtor()
 	BIOME(ExtremeHillsBiome, extremeHills, RGB(96, 96, 96), 0.2f, 0.3f, 0.3f, 1.5f, ExtremeHills);
 	BIOME_LEAF(BirchForestBiome, birchForest, RGB(5, 102, 33), RGB(78, 186, 49), 0.7f, 0.8f, 0.0f, 0.1f, Forest);
 	BIOME_LEAF(ForestBiome, forest, RGB(5, 102, 33), RGB(78, 186, 49), 0.7f, 0.8f, 0.0f, 0.1f, Forest);
-	BIOME_LEAF(RainforestBiome, rainForest, RGB(5, 102, 33), RGB(78, 186, 49), 0.7f, 0.8f, 0.0f, 0.1f, Forest);
+	BIOME_LEAF(OakForestBiome, oakForest, RGB(5, 102, 33), RGB(78, 186, 49), 0.7f, 0.8f, 0.0f, 0.1f, Forest);
 	BIOME_LEAF(TaigaBiome, taiga, RGB(11, 102, 89), RGB(78, 186, 49), 0.7f, 0.8f, 0.1f, 0.4f, Taiga);
 	BIOME_SNOW(TaigaBiome, taigaSnowed, RGB(11, 102, 89), 0.05f, 0.8f, 0.1f, 0.4f, Taiga);
 	BIOME_LEAF(SwampBiome, swampland, RGB(7, 249, 178), RGB(139, 175, 72), 0.8f, 0.9f, -0.2f, 0.1f, Swampland);

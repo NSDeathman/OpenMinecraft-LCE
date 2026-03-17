@@ -10,6 +10,7 @@ class BiomeDecorator
 	friend class DesertBiome;
 	friend class ForestBiome;
 	friend class BirchForestBiome;
+	friend class OakForestBiome;
 	friend class PlainsBiome;
 	friend class SwampBiome;
 	friend class TaigaBiome;

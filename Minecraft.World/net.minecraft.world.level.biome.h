@@ -5,7 +5,7 @@
 #include "ForestBiome.h"
 #include "BirchForestBiome.h"
 #include "HellBiome.h"
-#include "RainforestBiome.h"
+#include "OakForestBiome.h"
 #include "IceBiome.h"
 #include "MushroomIslandBiome.h"
 #include "TheEndBiome.h"

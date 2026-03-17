@@ -1,9 +1,9 @@
 #pragma once
 #include "Biome.h"
 
-class RainforestBiome : public Biome
+class OakForestBiome : public Biome
 {
 public:
-	RainforestBiome(int id);
+	OakForestBiome(int id);
 	virtual Feature *getTreeFeature(Random *random);
 };

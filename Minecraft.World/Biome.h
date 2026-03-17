@@ -24,7 +24,7 @@ public:
 	static Biome* extremeHills;
 	static Biome* forest;	
 	static Biome* birchForest;
-	static Biome* rainForest;
+	static Biome* oakForest;
 	static Biome* taiga;
 	static Biome* taigaSnowed;
 	static Biome* swampland;

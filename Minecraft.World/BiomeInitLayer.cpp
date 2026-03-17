@@ -15,7 +15,7 @@ BiomeInitLayer::BiomeInitLayer(int64_t seed, shared_ptr<Layer> parent, LevelType
     overworldBiomes.push_back(Biome::extremeHills);
     overworldBiomes.push_back(Biome::forest);
     overworldBiomes.push_back(Biome::birchForest);
-    overworldBiomes.push_back(Biome::rainForest);
+    overworldBiomes.push_back(Biome::oakForest);
     overworldBiomes.push_back(Biome::taiga);
     overworldBiomes.push_back(Biome::taigaSnowed);
     overworldBiomes.push_back(Biome::swampland);
