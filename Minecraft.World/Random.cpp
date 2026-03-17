@@ -291,3 +291,17 @@ bool Random::nextBoolean()
 	return next(1) != 0;
 }
 #endif
+
+bool Random::percent(int percent)
+{
+    if (percent <= 0) return false;
+    if (percent >= 100) return true;
+    return nextInt(100) < percent;
+}
+
+bool Random::chance(int numerator, int denominator)
+{
+    if (numerator <= 0) return false;
+    if (numerator >= denominator) return true;
+    return nextInt(denominator) < numerator;
+}

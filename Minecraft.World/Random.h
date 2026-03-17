@@ -1,6 +1,5 @@
 #pragma once
 
-#ifndef USE_LEGACY_RANDOM
 class Random
 {
 private:
@@ -24,27 +23,10 @@ public:
 	float nextFloat();
 	int64_t nextLong();
 	bool nextBoolean();
+
+	// Returns true with probality = percent/100 (percent from 0 to 100)
+	bool percent(int percent);
+
+	// Returns true with probality = numerator/denominator
+	bool chance(int numerator, int denominator);
 };
-#else
-class Random
-{
-private:
-	int64_t seed;
-	bool haveNextNextGaussian;
-	double nextNextGaussian;
-protected:
-	int next(int bits);
-public:
-	Random();
-	Random(int64_t seed);
-	void setSeed(int64_t s);
-	void nextBytes(byte *bytes, unsigned int count);
-	double nextDouble();
-	double nextGaussian();
-	int nextInt();
-	int nextInt(int to);
-	float nextFloat();
-	int64_t nextLong();
-	bool nextBoolean();
-};
-#endif
