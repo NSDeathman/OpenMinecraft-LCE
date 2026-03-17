@@ -112,11 +112,13 @@ const char *SoundEngine::m_szStreamFileA[eStream_Max]=
 	"hal2",
 	"hal3",
 	"hal4",
+    "hal5",
 	"nuance1",
 	"nuance2",
+    "nuance3",
 	"piano1",
 	"piano2",
-	"piano3", // 11
+	"piano3",
 
 #ifndef _XBOX
 	"creative1",
@@ -124,23 +126,24 @@ const char *SoundEngine::m_szStreamFileA[eStream_Max]=
 	"creative3",
 	"creative4",
 	"creative5",
-	"creative6", // 17
+	"creative6",
 
 	"menu1",
 	"menu2",
 	"menu3",
-	"menu4", // 21
+	"menu4", 
+    "menu5",
 #endif
 
 	// Nether
 	"nether1",
 	"nether2",
 	"nether3",
-	"nether4", // 25
+	"nether4",
 
 	// The End
 	"the_end_dragon_alive",
-	"the_end_end", // 27
+	"the_end_end",
 	
 	// CDs
 	"11",
@@ -401,7 +404,7 @@ SoundEngine::SoundEngine(): random(new Random()), m_musicTrackManager(random), m
 
     m_musicTrackManager.setDomainRange(MusicTrackManager::Domain::Menu,
         eStream_Overworld_Menu1,
-        eStream_Overworld_Menu4);
+        eStream_Overworld_Menu5);
 
     m_musicTrackManager.setDomainRange(MusicTrackManager::Domain::OverworldSurvival,
         eStream_Overworld_Calm1,

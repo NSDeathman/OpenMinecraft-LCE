@@ -22,8 +22,10 @@ enum eMUSICFILES
 	eStream_Overworld_hal2,
 	eStream_Overworld_hal3,
 	eStream_Overworld_hal4,
+	eStream_Overworld_hal5,
 	eStream_Overworld_nuance1,
 	eStream_Overworld_nuance2,
+	eStream_Overworld_nuance3,
 	eStream_Overworld_piano1,
 	eStream_Overworld_piano2,
 	eStream_Overworld_piano3, // <-- make piano3 the last overworld one
@@ -41,6 +43,7 @@ enum eMUSICFILES
 	eStream_Overworld_Menu2,
 	eStream_Overworld_Menu3,
 	eStream_Overworld_Menu4,
+	eStream_Overworld_Menu5,
 #endif
 	// Nether
 	eStream_Nether1,
