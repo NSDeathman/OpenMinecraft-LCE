@@ -689,7 +689,7 @@ MusicTrackManager::Domain SoundEngine::determineCurrentMusicDomain() const
 	for (unsigned int i = 0; i < MAX_LOCAL_PLAYERS; ++i)
 	{
 		auto player = mc->localplayers[i];
-		if (!player) continue;
+		if (!player || !player->level) continue;
 
 		if (player->dimension == LevelData::DIMENSION_END)
 			inEnd = true;
