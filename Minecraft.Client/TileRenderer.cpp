@@ -914,6 +914,9 @@ bool TileRenderer::tesselateFlowerPotInWorld(FlowerPotTile *tt, int x, int y, in
 		case FlowerPotTile::TYPE_FLOWER_RED:
 			plant = Tile::rose;
 			break;
+		case FlowerPotTile::TYPE_BLUE_ORCHID:
+			plant = Tile::blue_orchid;
+			break;
 		case FlowerPotTile::TYPE_FLOWER_YELLOW:
 			plant = Tile::flower;
 			break;

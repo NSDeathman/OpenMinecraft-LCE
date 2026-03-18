@@ -685,7 +685,7 @@ void PreStitchedTextureMap::loadUVs()
 		ADD_ICON(1,		12,	L"mushroom_red");
 		ADD_ICON(1,		13,	L"mushroom_brown");
 		ADD_ICON(1,		14,	L"sapling_jungle");
-		ADD_ICON(1,		15,	L"fire_0");
+		ADD_ICON(1,		15,	L"blue_orchid");
 
 		ADD_ICON(2,		0,	L"gold_ore");
 		ADD_ICON(2,		1,	L"iron_ore");

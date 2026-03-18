@@ -43,6 +43,7 @@ protected:
 	Feature *lapisOreFeature;
 	Feature *yellowFlowerFeature;
 	Feature *roseFlowerFeature;
+	Feature* blueOrchidFlowerFeature;
 	Feature *brownMushroomFeature;
 	Feature *redMushroomFeature;
 	Feature *hugeMushroomFeature;
@@ -53,6 +54,7 @@ protected:
 	int waterlilyCount;
 	int treeCount;
 	int flowerCount;
+	int blueOrchidCount;
 	int grassCount;
 	int deadBushCount;
 	int mushroomCount;

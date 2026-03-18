@@ -82,6 +82,7 @@ Tile *Tile::wool = nullptr;
 PistonMovingPiece *Tile::pistonMovingPiece = nullptr;
 Bush *Tile::flower = nullptr;
 Bush *Tile::rose = nullptr;
+Bush* Tile::blue_orchid = nullptr;
 Bush *Tile::mushroom_brown = nullptr;
 Bush *Tile::mushroom_red = nullptr;
 Tile *Tile::goldBlock = nullptr;
@@ -393,6 +394,9 @@ void Tile::staticCtor()
 
 	Tile::rose = static_cast<Bush*>(NEW_TILE(Bush, rose_Id)
 		DESTROY(0.0f) SOUND(GRASS) ICON("flower_rose") DESC(IDS_TILE_ROSE) USEDESC(IDS_DESC_FLOWER) NOMIPMAP);
+	
+	Tile::blue_orchid = static_cast<Bush*>(NEW_TILE(Bush, blue_orchid_Id)
+		DESTROY(0.0f) SOUND(GRASS) ICON("blue_orchid") DESC(IDS_TILE_BLUE_ORCHID) USEDESC(IDS_DESC_FLOWER) NOMIPMAP);
 
 	Tile::mushroom_brown = static_cast<Bush*>(NEW_TILE(Mushroom, mushroom_brown_Id)
 		DESTROY(0.0f) SOUND(GRASS) LIGHTEMISSION(2 / 16.0f) ICON("mushroom_brown") DESC(IDS_TILE_MUSHROOM) USEDESC(IDS_DESC_MUSHROOM) NOMIPMAP);

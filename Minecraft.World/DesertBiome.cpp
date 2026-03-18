@@ -15,7 +15,7 @@ DesertBiome::DesertBiome(int id) : Biome(id)
 
 	decorator->treeCount = -999;
 	decorator->deadBushCount = 2;
-	decorator->reedsCount = 50;
+	decorator->reedsCount = 100;
 	decorator->cactusCount = 10;
 }
 

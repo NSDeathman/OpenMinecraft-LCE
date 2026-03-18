@@ -55,6 +55,7 @@ void BiomeDecorator::_init()
 	lapisOreFeature = new OreFeature(Tile::lapisOre_Id, 6);
 	yellowFlowerFeature = new FlowerFeature(Tile::flower_Id);
 	roseFlowerFeature = new FlowerFeature(Tile::rose_Id);
+	blueOrchidFlowerFeature = new FlowerFeature(Tile::blue_orchid_Id);
 	brownMushroomFeature = new FlowerFeature(Tile::mushroom_brown_Id);
 	redMushroomFeature = new FlowerFeature(Tile::mushroom_red_Id);
 	hugeMushroomFeature = new HugeMushroomFeature();
@@ -64,6 +65,7 @@ void BiomeDecorator::_init()
 
 	waterlilyCount = 0;
 	treeCount = 0;
+	blueOrchidCount = 0;
 	flowerCount = 2;
 	grassCount = 1;
 	deadBushCount = 0;
@@ -144,6 +146,14 @@ void BiomeDecorator::decorate()
 			z = zo + random->nextInt(16) + 8;
 			roseFlowerFeature->place(level, random, x, y, z);
 		}
+	}
+
+	for (int i = 0; i < blueOrchidCount; i++)
+	{
+		int x = xo + random->nextInt(16) + 8;
+		int y = random->nextInt(Level::genDepth);
+		int z = zo + random->nextInt(16) + 8;
+		blueOrchidFlowerFeature->place(level, random, x, y, z);
 	}
 
 	for (int i = 0; i < grassCount; i++)

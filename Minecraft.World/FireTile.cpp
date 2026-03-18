@@ -13,8 +13,8 @@
 #include "..\Minecraft.Client\Tesselator.h"
 
 
-const wstring FireTile::TEXTURE_FIRST = L"fire_0";
-const wstring FireTile::TEXTURE_SECOND = L"fire_1";
+const wstring FireTile::TEXTURE_FIRST = L"lava";
+const wstring FireTile::TEXTURE_SECOND = L"lava";
 
 FireTile::FireTile(int id) : Tile(id, Material::fire,isSolidRender())
 {

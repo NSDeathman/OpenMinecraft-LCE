@@ -2,6 +2,8 @@
 #include "Random.h"
 #include "System.h"
 
+#define USE_LEGACY_RANDOM
+
 #ifndef USE_LEGACY_RANDOM
 // Windows API for high-resolution counters and system info
 #include <windows.h>

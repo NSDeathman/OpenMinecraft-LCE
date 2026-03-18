@@ -367,6 +367,8 @@ public:
 
 	static const int lightSourceBlock_Id = 174;
 
+	static const int blue_orchid_Id = 175;
+
 	static Tile *stone;
 	static GrassTile *grass;
 	static Tile *dirt;
@@ -405,6 +407,7 @@ public:
 	static PistonMovingPiece *pistonMovingPiece;
 	static Bush *flower;
 	static Bush *rose;
+	static Bush *blue_orchid;
 	static Bush *mushroom_brown;
 	static Bush *mushroom_red;
 	static Tile *goldBlock;

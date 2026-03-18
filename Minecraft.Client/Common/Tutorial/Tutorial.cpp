@@ -481,7 +481,7 @@ Tutorial::Tutorial(int iPad, bool isFullTutorial /*= false*/) : m_iPad( iPad )
 	int woolItems[] = {Tile::wool_Id};
 	if(!isHintCompleted(e_Tutorial_Hint_Wool)) addHint(e_Tutorial_State_Gameplay, new LookAtTileHint(e_Tutorial_Hint_Wool, this, woolItems, 1 ) );
 
-	int flowerItems[] = {Tile::flower_Id, Tile::rose_Id};
+	int flowerItems[] = {Tile::flower_Id, Tile::rose_Id, Tile::blue_orchid_Id};
 	if(!isHintCompleted(e_Tutorial_Hint_Flower)) addHint(e_Tutorial_State_Gameplay, new LookAtTileHint(e_Tutorial_Hint_Flower, this, flowerItems, 2 ) );
 
 	int mushroomItems[] = {Tile::mushroom_brown_Id, Tile::mushroom_red_Id};

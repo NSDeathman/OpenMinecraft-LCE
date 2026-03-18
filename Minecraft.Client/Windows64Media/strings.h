@@ -2290,3 +2290,5 @@
 #define IDS_RICHPRESENCESTATE_BREWING                          2284
 #define IDS_RICHPRESENCESTATE_ANVIL                            2285
 #define IDS_RICHPRESENCESTATE_TRADING                          2286
+
+#define IDS_TILE_BLUE_ORCHID                                   2287

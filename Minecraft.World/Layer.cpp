@@ -66,6 +66,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 			// them at this scale actually lets us place them near enough other land, if we add them at the same scale as java then they have to be too far out to see for
 			// the scale of our maps
 			biomeLayer = std::make_shared<AddMushroomIslandLayer>(10, biomeLayer);
+			biomeLayer = ZoomLayer::zoom(100, biomeLayer, 0);
 		}
 
 		if (i == 1 )
@@ -74,6 +75,7 @@ LayerArray Layer::getDefaultLayers(int64_t seed, LevelType *levelType)
 			// This helps make the islands into nice compact shapes of the type that are actually likely to be able to make an island out of the sea in a small space. Also
 			// helps the shore layer from doing too much damage in shrinking the islands we are making
 			biomeLayer = std::make_shared<GrowMushroomIslandLayer>(10, biomeLayer);
+			biomeLayer = ZoomLayer::zoom(100, biomeLayer, 0);
 			// Note - this reduces the size of mushroom islands by turning their edges into shores. We are doing this at i == 1 rather than i == 0 as the original does
 			biomeLayer = std::make_shared<ShoreLayer>(1000, biomeLayer);
 

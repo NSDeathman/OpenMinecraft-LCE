@@ -376,7 +376,7 @@ int McRegionChunkStorage::runSaveThreadProc(LPVOID lpParam)
 			if(dos)
 			{
 				PIXBeginNamedEvent(0,"Saving chunk");
-				//app.DebugPrintf("Compressing chunk data (%d left)\n", lastQueueSize - 1);
+				app.DebugPrintf("Compressing chunk data (%d left)\n", lastQueueSize - 1);
 				dos->close();
 				dos->deleteChildStream();
 				PIXEndNamedEvent();
@@ -391,7 +391,7 @@ int McRegionChunkStorage::runSaveThreadProc(LPVOID lpParam)
 
 		// If there was more than one thing in the queue last time we checked, then we want to spin round again soon
 		// Otherwise wait a bit longer
-		if( (lastQueueSize -1) > 0) Sleep(1); // Sleep 1 to yield
+		if( (lastQueueSize) > 0) Sleep(1); // Sleep 1 to yield
 		else Sleep(100);
 	}
 
